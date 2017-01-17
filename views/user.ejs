@@ -1,0 +1,19 @@
+<%- include header%>
+
+    <div class="user">
+        <div class="userBox">
+            <div class="face"><img src="<%= postUser.face %>" alt=""/></div>
+            <div class="info">
+                <p>用户名：<%=postUser.name%></p>
+                <p>邮箱：<%=postUser.email%></p>
+                <p>注册时间：<%=postUser.regTime%></p>
+            </div>
+        </div>
+        <%if(posts.length){%>
+        <%- include postList %>
+        <%}else{%>
+        <div class="noData">没有数据。。。</div>
+        <%}%>
+    </div>
+
+<%- include footer%>

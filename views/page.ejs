@@ -1,0 +1,19 @@
+<div class="page">
+    <%if(!page.isFirstPage){%>
+    <a href="<%=page.path%><%=page.first%>" class="first">First</a>
+    <a href="<%=page.path%><%=page.prev%>" class="prev">&lt;&lt;Prev</a>
+    <%}%>
+    <%for(var i=1;i<=page.total;i++){%>
+        <%if(page.curr==i){%>
+            <span><%=i%></span>
+        <%}else{%>
+            <a href="<%=page.path%>p=<%=i%>"><%=i%></a>
+        <%}%>
+    <%}%>
+
+    <%if(!page.isLastPage){%>
+    <a href="<%=page.path%><%=page.next%>" class="next">Next&gt;&gt;</a>
+    <a href="<%=page.path%><%=page.last%>" class="last">Last</a>
+    <%}%>
+    <span>&emsp;|&emsp;Page: <%=page.curr%> / <%=page.total%></span>
+</div>

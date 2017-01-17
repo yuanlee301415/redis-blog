@@ -1,0 +1,10 @@
+<%- include header%>
+
+    <div class="home">
+        <%if(posts.length){%>
+        <%- include postList %>
+        <%}else{%>
+        <div class="noData">没有数据。。。</div>
+        <%}%>
+    </div>
+<%- include footer%>

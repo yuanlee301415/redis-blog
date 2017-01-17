@@ -1,0 +1,15 @@
+<%- include header%>
+
+    <div class="tagsList">
+        <%if(posts){%>
+
+            <%posts.forEach(function(tag){%>
+                <a href="/tags/<%=tag%>" class="tag"><%=tag%></a>
+            <%});%>
+
+        <%}else{%>
+        <div class="noData">没有数据。。。</div>
+        <%}%>
+
+    </div>
+<%- include footer%>

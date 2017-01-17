@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JKBlog<%if(user){%>-[<%= user.name %>]<%}%>-<%=title%></title>
+    <link rel='stylesheet' href='/stylesheets/style.css'/>
+</head>
+<body>
+
+<header>
+    <h1><%= title %></h1>
+</header>
+
+<nav>
+    <span><a href="/">Home</a></span>
+    <span><a href="/archive">Archive</a></span>
+    <span><a href="/tags">tags</a></span>
+    <% if(user){%>
+        <span><a href="/post">Post</a></span>
+        <span><a href="/upload">Upload</a></span>
+        <span><a href="/logout">Logout</a></span>
+    <%}else {%>
+        <span><a href="/login">Login</a></span>
+        <span><a href="/reg">Register</a></span>
+    <%}%>
+    <span><a href="/links">Links</a></span>
+    <form action="/search" class="search"><input type="text" placeholder="SEARCH" name="keyword"/></form>
+</nav>
+
+<article>
+    <%if(success){%>
+        <div class="success"><%= success %></div>
+    <%}%>
+    <%if(error){%>
+        <div class="error"><%= error %></div>
+    <%}%>

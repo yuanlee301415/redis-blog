@@ -1,0 +1,18 @@
+<%- include header %>
+
+  <div class="post">
+    <form method="post">
+        标题：<br/>
+        <input type="text" name="title"/><br/>
+        标签：<br>
+        <input type="text" name="tag" value="TagA"/>
+        <input type="text" name="tag" value="TagB"/>
+        <input type="text" name="tag" value="TagC"/>
+        <br>
+        正文：<br/>
+        <textarea name="post" cols="80" rows="10"></textarea><br/>
+        <input type="submit" value="发表"/>
+    </form>
+  </div>
+
+<%- include footer %>

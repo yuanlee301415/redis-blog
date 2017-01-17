@@ -1,0 +1,4 @@
+/node_modules
+/public/uploads
+access.log
+error.log
