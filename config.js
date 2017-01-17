@@ -1,6 +1,6 @@
 module.exports={
-    secret:'JKBlog',
+    secret:'RedisBlog',
     host:'localhost',
     port:27017,
-    db:'JKBlog'
+    db:'RedisBlog'
 };

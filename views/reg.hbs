@@ -1,0 +1,62 @@
+{{> header}}
+
+      <div class="reg">
+        <form method="post">
+          <table border="0">
+            <tr>
+              <td>用户名：</td>
+              <td><input type="text" name="name" value="user_"/></td>
+            </tr>
+            <tr>
+              <td>密码：</td>
+              <td><input type="password" name="password" value="aaa"/></td>
+            </tr>
+            <tr>
+              <td>确认密码：</td>
+              <td><input type="password" name="repeat" value="aaa"/></td>
+            </tr>
+            <tr>
+              <td>邮箱：</td>
+              <td><input type="email" name="email" value="user@163.com"/></td>
+            </tr>
+            <tr>
+              <td>头像：</td>
+              <td>
+                <input type="hidden" name="face" id="faceIpt" value="/images/faces/1.jpg"/>
+                <ul class="faceList" id="faceList">
+                  <li data-face="/images/faces/1.jpg" class="hl"><img src="/images/faces/1.jpg" alt=""/></li>
+                  <li data-face="/images/faces/2.jpg"><img src="/images/faces/2.jpg" alt=""/></li>
+                  <li data-face="/images/faces/3.jpg"><img src="/images/faces/3.jpg" alt=""/></li>
+                  <li data-face="/images/faces/4.jpg"><img src="/images/faces/4.jpg" alt=""/></li>
+                  <li data-face="/images/faces/5.jpg"><img src="/images/faces/5.jpg" alt=""/></li>
+                  <li data-face="/images/faces/6.jpg"><img src="/images/faces/6.jpg" alt=""/></li>
+                  <li data-face="/images/faces/7.jpg"><img src="/images/faces/7.jpg" alt=""/></li>
+                  <li data-face="/images/faces/8.jpg"><img src="/images/faces/8.jpg" alt=""/></li>
+                  <li data-face="/images/faces/9.jpg"><img src="/images/faces/9.jpg" alt=""/></li>
+                  <li data-face="/images/faces/10.jpg"><img src="/images/faces/10.jpg" alt=""/></li>
+                </ul>
+              </td>
+            </tr>
+            <tr>
+              <td></td>
+              <td><input type="submit" value="注册"/></td>
+            </tr>
+          </table>
+        </form>
+      </div>
+
+{{> footer}}
+
+{{#section 'script'}}
+<script src="/javascripts/lib/jquery-2.1.4.min.js"></script>
+<script>
+$(function () {
+  var $faceIpt=$('#faceIpt');
+  $('#faceList').on('click','li', function () {
+      $(this).addClass('hl').siblings().removeClass('hl');
+      $faceIpt.val($(this).attr('data-face'));
+      console.log('face:',$faceIpt.val());
+  });
+});
+</script>
+{{/section}}

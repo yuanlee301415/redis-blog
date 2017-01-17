@@ -3,7 +3,7 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
-var MongoStore = require('connect-mongo')(session);
+var ConnectMongo = require('connect-mongo')(session);
 var flash = require('connect-flash');
 var routes = require('./routes/index');
 var config = require('./config');
@@ -13,6 +13,19 @@ var app = express();
 var port=3002;
 var colors=require('colors');
 var morgan = require('morgan');
+var redis=require('redis');
+var rClient=redis.createClient();
+var exHbs=require('express-handlebars').create({
+    defaultLayout:'main',
+    extname:'.hbs',
+    helpers:{
+        section: function (name, opts) {
+            if(!this._sections)this._sections={};
+            this._sections[name]=opts.fn(this);
+            return null;
+        }
+    }
+});
 
 colors.setTheme({
   info: 'green',
@@ -23,17 +36,18 @@ colors.setTheme({
 });
 
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
+app.set('view engine', 'hbs');
+app.engine('hbs',exHbs.engine);
 app.use(logger('dev'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(session({
-  secret: config.secret,
-  key: config.db,
-  cookie: {maxAge: 1000 * 60 * 60 * 24 * 30},//30 days
-  store: new MongoStore({
-    url: 'mongodb://localhost/JKBlog'
-  })
+    secret: config.secret,
+    key: config.db,
+    cookie: {maxAge: 1000 * 60 * 60 * 24 * 30},//30 days
+    store: new ConnectMongo({
+        url: 'mongodb://localhost/RedisBlog'
+    })
 }));
 app.use(flash());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -98,5 +112,5 @@ app.use(function(err, req, res, next) {
 });
 
 app.listen(port, function () {
-  console.log(['JKBlog port:',port,new Date()].join('-').info);
+  console.log('---------------------------','Redis Blog port:',port,'----',new Date().toLocaleTimeString(),'---------------------------');
 });
