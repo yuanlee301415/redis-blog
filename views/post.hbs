@@ -1,0 +1,18 @@
+{{> header}}
+
+  <div class="post">
+    <form method="post">
+        标题：<br/>
+        <input type="text" name="title" value="{{user.name}}--"/><br/>
+        标签：<br>
+        {{#each tags}}
+            <input type="radio" name="tag-{{.}}" value="NodeJS" checked/>{{.}}&nbsp;
+        {{/each}}
+        <br>
+        正文：<br/>
+        <textarea name="content" cols="80" rows="10">{{user.name}}的文章，{{user.name}}的文章，{{user.name}}的文章，{{user.name}}的文章，{{user.name}}的文章。</textarea><br/>
+        <input type="submit" value="发表"/>
+    </form>
+  </div>
+
+{{> footer}}

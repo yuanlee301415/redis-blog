@@ -7,7 +7,7 @@ module.exports = router;
 //logout
 router.get('/',checkLogin, function (req, res) {
   req.session.user=null;
-  req.flash('success','退出成功');
+  req.flash('success','登出成功');
   res.redirect('/');
 });
 

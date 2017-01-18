@@ -2,5 +2,6 @@ module.exports={
     secret:'RedisBlog',
     host:'localhost',
     port:27017,
-    db:'RedisBlog'
+    db:'RedisBlog',
+    tags:['NodeJS','Redis','MongoDB','Express','Other']
 };

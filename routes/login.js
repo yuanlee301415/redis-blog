@@ -2,36 +2,34 @@ var express = require('express');
 var router = express.Router();
 var crypto = require('crypto');
 var checkNotLogin = require('../middleware/checkNotLogin');
-
-var User = require('../modules/user');
-
+var cli=require('redis').createClient({db:1});
+var Ep=require('eventproxy');
 module.exports = router;
 
 //Login
 router.get('/',checkNotLogin, function (req, res) {
-  res.render('login',{title:'登录',back:req.query.back,user:req.session.user,success:req.flash('success').toString(),error:req.flash('error').toString()});
+  res.render('login',{title:'登录',refer:req.query.refer,user:req.session.user,success:req.flash('success').toString(),error:req.flash('error').toString()});
 });
 
-router.post('/',checkNotLogin, function (req, res) {
-  var name=req.body.name,password=crypto.createHash('md5').update(req.body.password).digest('hex');
-
-  User.get(name, function (err, user) {
-    if(!user){
-      req.flash('error','用户不存在！');
-      return res.redirect('/login');
-    }
-    console.log('Login>user:',user,req.body.password,password);
-    if(user.password!==password){
-      req.flash('error','用户名或密码错误！');
-      return res.redirect('/login');
-    }
-    req.session.user=user;
-    req.flash('success','登录成功！');
-
-    if(req.body.back){//从其它需要登录的页面跳转而来的，返回需要登录之前的页面
-      res.redirect(req.body.back);
+router.post('/',checkNotLogin, function (req, res,next) {
+  var name=req.body.name,password=crypto.createHash('md5').update(req.body.password).digest('hex'),ep=new Ep();
+  ep.fail(next);
+  ep.on('login_error',(msg)=>{
+    req.flash('error',msg);
+    res.redirect('/login');
+  });
+  cli.hgetall('users:'+name,(err,user)=>{
+    if(err)return ep.emit('login_error','查询错误');
+    if(!user || name !== user.name || password !== user.password)return ep.emit('login_error','用户名或密码错误');
+    req.session.user={
+      id:user.id,
+      name:user.name
+    };
+    req.flash('success','登录成功');
+    if(req.body.refer){
+      res.redirect(req.body.refer);
     }else{
-      res.redirect('/');
+      res.redirect('/post');
     }
   });
 });
