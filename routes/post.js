@@ -33,19 +33,24 @@ router.post('/',checkLogin, function (req, res,next) {
     var id=uuid(),date=Date.now();
     async.parallel({
         postIds:(cb)=>{
-            cli.zadd(['postIds:'+id,+date,id],(err)=>{
+            console.log('postIds:','postIds:'+id,[+date,id]);
+            cli.zadd('postIds:'+id,[+date,id],(err)=>{
                 if(err)return cb(err);
                 cb(null);
             });
         },
         userPosts:(cb)=>{
-            cli.zadd(['userPosts:'+user.name,time,id],(err)=>{
+            cli.zadd('userPosts:'+user.name,[+date,id],(err)=>{
                 if(err)return cb(err);
                 cb(null);
             });
         },
         posts:(cb)=>{
-            cli.hmset('posts:'+id,['id',id,'userId',user.id,'userName',user.name,'title',title,'content',content,'time',moment()])
+            console.log('post data:','posts:'+id,['id',id,'userId',user.id,'userName',user.name,'title',title,'content',content,'time',moment(date).formart('YYYY-MM-DD HH:mm:ss')]);
+            cli.hmset('posts:'+id,['id',id,'userId',user.id,'userName',user.name,'title',title,'content',content,'time',moment(date).formart('YYYY-MM-DD HH:mm:ss')],(err,ret)=>{
+                if(err)return cb(err);
+                cb(null);
+            });
         }
     },(err,ret)=>{
         if(err)return console.log(err),ep.emit('post_err','保存POST错误');
