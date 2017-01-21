@@ -1,17 +1,18 @@
 var express = require('express');
 var router = express.Router();
 var checkLogin =require('../middleware/checkLogin');
-var tags=require('../config.js').tags;
+var postTags=require('../config.js').postTags;
 var Ep=require('eventproxy');
 var cli=require('redis').createClient({db:1});
 var uuid=require('uuid/v4');
 var async=require('async');
+var moment=require('moment');
 
 module.exports = router;
 
 //发表
 router.get('/',checkLogin, function (req, res) {
-  res.render('post',{title:'发表',tags:tags,user:req.session.user,success:req.flash('success').toString(),error:req.flash('error').toString()});
+  res.render('post',{title:'发表',postTags:postTags,user:req.session.user,success:req.flash('success').toString(),error:req.flash('error').toString()});
 });
 
 router.post('/',checkLogin, function (req, res,next) {
@@ -21,7 +22,7 @@ router.post('/',checkLogin, function (req, res,next) {
         req.flash('error','Save post error:'+msg);
         return res.redirect('/post');
     });
-    ep.after('postIds','userPosts','posts','tags','archivesIndex','archives','postCount',()=>{
+    ep.after('postIds','userPosts','posts','tags','archivesIndex','archives','postCommentsCount','postCount',()=>{
         req.flash('success','文章发表成功！');
         res.redirect('/post');
     });
@@ -30,61 +31,90 @@ router.post('/',checkLogin, function (req, res,next) {
     if(!postTags.length)return ep.emit('post_err','至少选择一个标签');
 
     //save
-    var id=uuid(),date=Date.now();
+    var postId=uuid(),date=new Date(),ym=moment(date).format('YYYY-MM');
     async.parallel({
         postIds:(cb)=>{
             console.log('postIds:','postIds:'+id,[+date,id]);
-            cli.zadd('postIds:'+id,[+date,id],(err)=>{
+            cli.zadd(['postIds:'+postId,+date,postId],(err,ret)=>{
                 if(err)return cb(err);
-                cb(null);
+                console.log('postIds>ret:',ret);
+                cb(null,ret);
             });
         },
         userPosts:(cb)=>{
-            cli.zadd('userPosts:'+user.name,[+date,id],(err)=>{
+            cli.zadd('userPosts:'+user.name,[+date,postId],(err,ret)=>{
                 if(err)return cb(err);
-                cb(null);
+                console.log('userPosts>ret:',ret);
+                cb(null,ret);
             });
         },
         posts:(cb)=>{
-            console.log('post data:','posts:'+id,['id',id,'userId',user.id,'userName',user.name,'title',title,'content',content,'time',moment(date).formart('YYYY-MM-DD HH:mm:ss')]);
-            cli.hmset('posts:'+id,['id',id,'userId',user.id,'userName',user.name,'title',title,'content',content,'time',moment(date).formart('YYYY-MM-DD HH:mm:ss')],(err,ret)=>{
+            var tags=[];
+            postTags.forEach((tag)=>{
+                if(req.body['tag-'+tag]){
+                    tags.push(tag);
+                }
+            });
+            console.log('tags:',tags);
+            cli.hmset('posts:'+postId,[
+                    'id',postId,
+                    'title',title,
+                    'content',content,
+                    'time',moment(date).format('YYYY-MM-DD HH:mm:ss'),
+                    'tags',tags.join('-'),
+                    'pv',0,
+                    'commentCnt',0,
+                    'reprintCnt',0,
+                    'userId',user.id,
+                    'userName',user.name
+            ],(err,ret)=>{
                 if(err)return cb(err);
-                cb(null);
+                console.log('userPosts>ret:',ret);
+                cb(null,ret);
+            });
+        },
+        tags:(cb)=>{
+            var tags=[];
+            postTags.forEach((tag)=>{
+                if(req.body['tag-'+tag]){
+                    tags.push(tag);
+                }
+            });
+
+            async.each(tags,(tag,ecb)=>{
+                cli.sadd('tags:'+tag,postId,(err,ret)=>{
+                    if(err)return ecb(err);
+                    ecb(null,ret);
+                });
+            },(err,ret)=>{
+                if(err)return cb(err);
+                cb(null,ret);
+            });
+        },
+        archivesIndex:(cb)=>{
+            var score=+new Date(date.getFullYear(),date.getMonth());//以当前时间的年月1日0点时间戳为score
+            console.log('archivesIndex:score|val',score,ym);
+            cli.zadd('archivesIndex',[score,ym],(err,ret)=>{
+                if(err)return cb(err);
+                console.log('archivesIndex>ret:',ret);
+                cb(null,ret);
+            });
+        },
+        archives:(cb)=>{
+            cli.zadd('archives:'+ym,[Date.now(),postId],(err,ret)=>{
+                if(err)return cb(err);
+                console.log('archives>ret:',ret);
+                cb(null,ret);
             });
         }
     },(err,ret)=>{
         if(err)return console.log(err),ep.emit('post_err','保存POST错误');
-
+        cli.incr('posts:count',(err,ret)=>{
+            if(err)return console.log(err),ep.emit('post_err','保存POST错误');
+            console.log('posts:count>ret:',ret);
+            console.log('Post saved!');
+            req.flash('success','文章发表成功！');
+            res.redirect('/article/'+postId);
+        });
     });
-
-
-
-/*    var postTags=[];
-    tags.forEach((tag)=>{
-        if(req.body['tag-'+tag]){
-            postTags.push(tag);
-        }
-    });*/
-    /*cli.incr('posts:count',(err,ret)=>{
-        console.log(err,ret);
-    });*/
-/*    cli.get('posts:count',(err,ret)=>{
-        console.log(err,ret);
-    });*/
-
-/*  post=new Post({
-    title:req.body.title,
-    tags:req.body.tag,
-    post:req.body.post,
-    user:req.session.user
-  });
-  post.save(function (err) {
-    if(err){
-      req.flash('error','发表失败');
-      return res.redirect('/post');
-    };
-    req.flash('success','发表成功');
-    console.log('/post > post:',post);
-    res.redirect('back');
-  });*/
 });

@@ -5,7 +5,7 @@
         标题：<br/>
         <input type="text" name="title" value="{{user.name}}--"/><br/>
         标签：<br>
-        {{#each tags}}
+        {{#each postTags}}
             <input type="radio" name="tag-{{.}}" value="NodeJS" checked/>{{.}}&nbsp;
         {{/each}}
         <br>

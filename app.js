@@ -67,7 +67,7 @@ app.use('/login', require('./routes/login'));//登录
 app.use('/post', require('./routes/post'));//发表文章
 app.use('/upload', require('./routes/upload'));//上传图片
 app.use('/user', require('./routes/user'));//用户博客列表
-app.use('/article', require('./routes/article'));//博客详细
+app.use('/article', require('./routes/article'));//博客详细+评论博客
 app.use('/edit', require('./routes/edit'));//编辑博客
 app.use('/remove', require('./routes/remove'));//删除博客
 
@@ -76,6 +76,8 @@ app.use('/tags', require('./routes/tags'));//标签
 app.use('/search', require('./routes/search'));//搜索
 app.use('/links', require('./routes/links'));//友情链接
 app.use('/reprint', require('./routes/reprint'));//转载
+
+app.use('/notify', require('./routes/notify'));//转载
 
 app.use('/api', require('./routes/api'));//api
 app.use('/api', function (req, res, next) {

@@ -23,7 +23,8 @@ router.post('/',checkNotLogin, function (req, res,next) {
     if(!user || name !== user.name || password !== user.password)return ep.emit('login_error','用户名或密码错误');
     req.session.user={
       id:user.id,
-      name:user.name
+      name:user.name,
+      email:user.email
     };
     req.flash('success','登录成功');
     if(req.body.refer){
