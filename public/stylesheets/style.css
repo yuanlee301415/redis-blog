@@ -1,10 +1,12 @@
 *{padding:0;margin:0;}
-body{width:600px;margin:2em auto;padding:0 2em;font-size:14px;font-family:"Microsoft YaHei";color:#3f3f3f;}
+body{width:100%;margin:2em auto;font-size:14px;font-family:"Microsoft YaHei";color:#3f3f3f;}
 li {list-style: none;}
 .success,.error  {
     line-height: 30px;
     background-color: #efefef;
-    margin-bottom: 10px;
+    margin:10px 0;
+    padding: 0 10px;
+    text-align: center;
 }
 .success {
     color:#0c0;
@@ -13,8 +15,8 @@ li {list-style: none;}
     color:#c00;
 }
 
-header{padding:.5em 0;border-bottom:1px solid #cccccc;}
-nav{float:left;font-family:"Microsoft YaHei";font-size:1.1em;text-transform:uppercase;margin-left:-12em;width:9em;text-align:right;}
+header{padding:.5em 0;border-bottom:1px solid #cccccc; margin-bottom: 20px;text-align: center;}
+nav{float:left;font-family:"Microsoft YaHei";font-size:1.1em;text-transform:uppercase;width:9em;text-align:right;}
 nav a{display:block;text-decoration:none;padding:.7em 1em;color:#000000;}
 nav a:hover{background-color:#ff0000;color:#f9f9f9;-webkit-transition:color .2s linear;}
 article{font-size:16px;padding-top:1em;}
@@ -25,8 +27,11 @@ article a:hover{color:#333333;text-decoration:underline;}
     padding-top: 10px;
 }
 .search input {
-    width:100%;
+    width:8em;
     line-height: 24px;
+}
+.det {
+    margin-left: 12em;
 }
 .list>li {border-bottom: 1px solid #ccc;margin-bottom:10px; padding: 5px 0 20px;}
 .list .title  {line-height:34px;word-wrap:break-word;word-break:break-all;}
@@ -38,6 +43,8 @@ article a:hover{color:#333333;text-decoration:underline;}
 .commentsListTitle,.commentForm .title {
     background: #ddd;
     margin-bottom: 5px;
+    margin-top: 30px;
+    border-top:1px solid #ccc;
 }
 .commentsList dl {
     height:50px;
@@ -78,6 +85,7 @@ article a:hover{color:#333333;text-decoration:underline;}
     padding-right: 20px;
 }
 .tagsList a,.list .tag{text-decoration:none;background-color:#ccc;border-radius:3px;font-size:14px;color:#666;display:inline-block;padding:0 5px;margin-bottom:8px;}
+.list .tag.curr {color:#00a;}
 .tagsList .a:hover,.list .tag:hover{color:#00a;}
 .tagsList a {
     color: #333333;
@@ -89,11 +97,8 @@ article a:hover{color:#333333;text-decoration:underline;}
     color:#c00;
 }
 
-.links a {
-    margin-right:30px;
-    line-height: 30px;
-}
-
+.links a {margin-right:30px;line-height: 30px;}
+.postForm th,.postForm td{padding: 10px 5px;}
 .faceList li {
     float: left;
     width: 50px;
@@ -131,5 +136,19 @@ article a:hover{color:#333333;text-decoration:underline;}
     border-radius: 5px;
     padding:10px;
     color:#e30;
+    margin-bottom: 20px;
+}
+.cb {clear: both;}
+.copyright {
+    margin-top: 30px;
+    line-height: 40px;
+    text-align: center;
+    background-color: #ccc;
+}
+.article .list>li {
+    border: none;
+}
+.article .list h2 {
+    line-height:40px;
     margin-bottom: 20px;
 }

@@ -1,0 +1,12 @@
+{{> header}}
+    <div class="tagsList det">
+       {{#if tags}}
+            {{#each tags}}
+                <a href="/tags/{{.}}" class="tag">{{.}}</a>
+            {{/each}}
+       {{else}}
+            <div class="noData">没有数据。。。</div>
+       {{/if}}
+
+    </div>
+{{> footer}}

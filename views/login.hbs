@@ -1,18 +1,18 @@
 {{> header}}
 
-  <div class="login">
+  <div class="login det">
     <form action="/login" method="post">
       <table border="0">
         <tr>
-          <th>用户名：</th>
+          <td align="right">用户名：</td>
           <td><input type="text" name="name"/></td>
         </tr>
         <tr>
-          <th>密码：</th>
+          <td align="right">密码：</td>
           <td><input type="password" value="123456" name="password"/></td>
         </tr>
         <tr>
-          <th></th>
+          <td>&nbsp;</td>
           <td><input type="hidden" name="refer" value="{{refer}}"/><input type="submit" value="登录"/></td>
         </tr>
       </table>

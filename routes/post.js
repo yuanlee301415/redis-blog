@@ -83,7 +83,7 @@ router.post('/',checkLogin, function (req, res,next) {
             });
 
             async.each(tags,(tag,ecb)=>{
-                cli.sadd('tags:'+tag,postId,(err,ret)=>{
+                cli.zadd('tags:'+tag,[+date,postId],(err,ret)=>{
                     if(err)return ecb(err);
                     ecb(null,ret);
                 });
@@ -102,7 +102,7 @@ router.post('/',checkLogin, function (req, res,next) {
             });
         },
         archives:(cb)=>{
-            cli.zadd('archives:'+ym,[Date.now(),postId],(err,ret)=>{
+            cli.zadd('archives:'+ym,[+date,postId],(err,ret)=>{
                 if(err)return cb(err);
                 console.log('archives>ret:',ret);
                 cb(null,ret);
@@ -115,7 +115,8 @@ router.post('/',checkLogin, function (req, res,next) {
             console.log('posts:count>ret:',ret);
             console.log('Post saved!');
             req.flash('success','文章发表成功！');
-            res.redirect('/article/'+postId);
+            //res.redirect('/article/'+postId);
+            res.redirect('/post');
         });
     });
 });

@@ -1,6 +1,6 @@
 {{>header}}
 
-    <div class="article">
+    <div class="article det">
         <ul class="list">
             <li>
                 <div><h2>{{post.title}}</h2></div>
@@ -30,11 +30,14 @@
                 <div class="post">{{post.content}}</div>
             </li>
         </ul>
+
+        {{#if post.reprintFrom}}
+            <div class="reprintFrom info">转载自：<a href="/article/<%= post.reprint.from.name %>/<%= post.reprint.from._id %>">http://localhost/article/<%= post.reprint.from.name %>/<%= post.reprint.from._id %></a></div>
+        {{/if}}
+
+        {{> comments }}
+
+
     </div>
 
-    {{#if post.reprintFrom}}
-    <div class="reprintFrom info">转载自：<a href="/article/<%= post.reprint.from.name %>/<%= post.reprint.from._id %>">http://localhost/article/<%= post.reprint.from.name %>/<%= post.reprint.from._id %></a></div>
-    {{/if}}
-
-    {{> comments }}
 {{>footer}}

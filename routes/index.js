@@ -8,7 +8,7 @@ module.exports = router;
 router.get('/', function (req, res, next) {
     async.waterfall([
         (cb)=> {
-            cli.zrange('postIds', 0, -1, (err, ids)=> {
+            cli.zrevrange('postIds', 0, -1, (err, ids)=> {
                 console.log('postIds:',err,ids);
                 if (err)return cb(err);
                 cb(null, ids);
