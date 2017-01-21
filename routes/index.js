@@ -1,9 +1,48 @@
 var router =require('express').Router();
-var User=require('../modules/user');
-var Post=require('../modules/post');
+var cli=require('redis').createClient({db:1});
+var async=require('async');
+var Ep=require('eventproxy');
+
 module.exports = router;
 
 router.get('/', function (req, res, next) {
+    async.waterfall([
+        (cb)=> {
+            cli.zrange('postIds', 0, -1, (err, ids)=> {
+                console.log('postIds:',err,ids);
+                if (err)return cb(err);
+                cb(null, ids);
+            });
+        },
+        (ids,cb)=>{
+            async.map(ids,(id,ecb)=>{
+                cli.hgetall('posts:'+id,(err,post)=>{
+                    console.log('posts:'+id,err,post);
+                    if(err)return next(err);
+                    ecb(null,post);
+                });
+            },(err,ret)=>{
+                if(err)return next(err);
+                ret.forEach((post)=>{
+                    post.tags=post.tags.split('-');
+                });
+                //console.log('getPost:',err,ret);
+                cb(null,ret);
+            });
+        }
+    ],(err,ret)=>{
+        console.log('result:',err,ret);
+        if(err)return next(err);
+        res.render('index',{
+            title:'Home',
+            posts:ret,
+            user:req.session.user,
+            success:req.flash('success').toString(),
+            error:req.flash('error').toString()
+        });
+    });
+
+    return;
     var p=req.query.p?parseInt(req.query.p):1;
     var limit=10;
     Post.getAll(null,p,limit,function (err, posts,total) {
