@@ -27,7 +27,6 @@ router.post('/',checkNotLogin, function (req, res,next) {
     cli.hexists('users:'+name,'name',(err,ret)=>{
         if(err)return next(err);
         if(ret)return ep.emit('reg_error','用户名已经注册！');
-
         cli.hmset('users:'+name,['id',uuid(),'name',name,'password',crypto.createHash('md5').update(password).digest('hex'),'email',email,'face',req.body.face,'regTime',moment().format('YYYY-MM-DD HH:mm:ss')],(err,ret)=>{
             if(err)return next(err);
             req.flash('success','注册成功！');

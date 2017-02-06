@@ -62,7 +62,7 @@ router.post('/',checkLogin, function (req, res,next) {
                     'title',title,
                     'content',content,
                     'time',moment(date).format('YYYY-MM-DD HH:mm:ss'),
-                    'tags',tags.join('-'),
+                    'tags',tags.join(','),
                     'pv',0,
                     'commentCnt',0,
                     'reprintCnt',0,

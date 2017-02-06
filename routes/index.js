@@ -24,7 +24,13 @@ router.get('/', function (req, res, next) {
             },(err,ret)=>{
                 if(err)return next(err);
                 ret.forEach((post)=>{
-                    post.tags=post.tags.split('-');
+                    post.tags=post.tags.split(',').map((tag)=>{
+                        return {
+                            name:tag,
+                            curr:false
+                        }
+                    });
+
                 });
                 //console.log('getPost:',err,ret);
                 cb(null,ret);
