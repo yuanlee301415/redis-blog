@@ -35,13 +35,15 @@ router.get('/', (req, res)=>{
         },
         (groups,cb)=>{
             async.each(groups,(group,ecb)=>{
-                //group.posts=[];
+                group.posts=[];
                 async.map(group.ids,(id,mcb)=>{
                     cli.hgetall('posts:'+id,(err,post)=>{
                         if(err)return mcb(err);
+                        cb(null,post);
                     });
                 },(err,posts)=>{
                     if(err)return ecb(err);
+                    //filter
                 });
             });
         }
