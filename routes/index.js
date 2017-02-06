@@ -9,7 +9,7 @@ router.get('/', function (req, res, next) {
     async.waterfall([
         (cb)=> {
             cli.zrevrange('postIds', 0, -1, (err, ids)=> {
-                console.log('postIds:',err,ids);
+                //console.log('postIds:',err,ids);
                 if (err)return cb(err);
                 cb(null, ids);
             });
@@ -17,27 +17,26 @@ router.get('/', function (req, res, next) {
         (ids,cb)=>{
             async.map(ids,(id,ecb)=>{
                 cli.hgetall('posts:'+id,(err,post)=>{
-                    console.log('posts:'+id,err,post);
+                    //console.log('posts:'+id,err,post);
                     if(err)return next(err);
                     ecb(null,post);
                 });
             },(err,ret)=>{
                 if(err)return next(err);
                 ret.forEach((post)=>{
-                    post.tags=post.tags.split(',').map((tag)=>{
+                    post.tags=post.tags.length?post.tags.split(',').map((tag)=>{
                         return {
                             name:tag,
                             curr:false
                         }
-                    });
-
+                    }):[];
+                    console.log('post.tags:',post.tags);
                 });
-                //console.log('getPost:',err,ret);
                 cb(null,ret);
             });
         }
     ],(err,ret)=>{
-        console.log('result:',err,ret);
+        //console.log('result:',err,ret);
         if(err)return next(err);
         res.render('index',{
             title:'Home',

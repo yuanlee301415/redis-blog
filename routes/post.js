@@ -31,7 +31,7 @@ router.post('/',checkLogin, function (req, res,next) {
     if(!postTags.length)return ep.emit('post_err','至少选择一个标签');
 
     //save
-    var postId=uuid(),date=new Date(Date.now()-Math.round(Math.random()*1000*3600*24*365*2))/*两年内的随机时间*/,ym=moment(date).format('YYYY-MM');
+    var postId=uuid(),date=new Date(Date.now()-Math.round(Math.random()*1000*3600*24*7*1))/*1周内的随机时间*/,ym=moment(date).format('YYYY-MM');
     console.log('postId | date:',postId,date);
     async.parallel({
         postIds:(cb)=>{

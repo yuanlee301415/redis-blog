@@ -53,7 +53,7 @@ router.get('/', (req, res)=>{
   return;
   Post.getArchive(function(err,list){
     if(err){
-      console.log('archive:'.error,err);
+      console.log('archive:',err);
       return res.redirect('/');
     }
     res.render('archive',{

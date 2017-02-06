@@ -16,7 +16,7 @@ router.get('/:postId', (req,res,next)=>{
         if(err)return next(err);
         if(!ret)return req.flash('error','文章不存在或已经删除！'),res.redirect('/notify');
         //console.log('getPost>ret:',key,ret);
-        ret.tags=ret.tags.split(',');
+        ret.tags=ret.tags.legnth?ret.tags.split(','):[];
         //console.log('getPost>ret2:',key,ret);
         res.render('article',{
             title:'博客详细页',
