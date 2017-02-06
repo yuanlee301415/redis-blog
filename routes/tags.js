@@ -23,7 +23,7 @@ router.get('/:tag', (req, res,next)=>{
         (cb)=>{
             cli.zrevrange('tags:'+currTag,0,-1,(err,postIds)=>{
                 if(err)return cb(err);
-                console.log('postIds:',req.params.tag,postIds);
+                //console.log('postIds:',req.params.tag,postIds);
                 cb(null,postIds);
             });
         },
@@ -36,7 +36,7 @@ router.get('/:tag', (req, res,next)=>{
             },(err,posts)=>{
                 if(err)return cb(err);
                 posts.forEach((post)=>{
-                    post.tags=post.tags.split('-').map((tag)=>{
+                    post.tags=post.tags.split(',').map((tag)=>{
                         var curr='';
                         if(currTag==tag){
                             curr='curr';
@@ -51,7 +51,7 @@ router.get('/:tag', (req, res,next)=>{
             });
         }
     ],(err,posts)=>{
-        console.log('posts:',err,posts);
+        //console.log('posts:',err,posts);
         if(err)return next(err);
         res.render('tag',{
             title:'Tag:'+req.params.tag,

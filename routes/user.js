@@ -8,7 +8,7 @@ module.exports = router;
 //用户博客列表
 router.get('/:name', function (req, res, next) {
     var name=req.params.name,ep=new Ep();
-    console.log('username:',name);
+    //console.log('username:',name);
     ep.fail(next);
     ep.on('user_error',()=>{
         req.flash('error','用户['+name+']不存在！');
@@ -16,14 +16,19 @@ router.get('/:name', function (req, res, next) {
     });
 
     ep.on('send',(data)=>{
-        console.log('send data:',data);
-
+        //console.log('send data:',data);
+        res.render('user',Object.assign({
+            title:'用户详细',
+            user:req.session.user,
+            success:req.flash('success').toString(),
+            error:req.flash('error').toString()
+        },data));
     });
 
     async.waterfall([
         (cb)=>{
             cli.hgetall('users:'+name,(err,user)=>{
-                console.log('user:',user);
+                //console.log('user:',user);
                 if(err)return cb(err);
                 if(!user)return ep.emit('user_error');
                 cb(null,user);
@@ -32,7 +37,7 @@ router.get('/:name', function (req, res, next) {
         (user,cb)=>{
             cli.zrange('userPosts:'+name,0,-1,(err,postIds)=>{
                 if(err)return cb(err);
-                console.log('userPosts:',postIds);
+                //console.log('postIds:',postIds);
                 cb(null,{user:user,postIds:postIds});
             });
         }
@@ -40,17 +45,17 @@ router.get('/:name', function (req, res, next) {
         if(err)return next(err);
 
         async.map(ret.postIds,(id,cb)=>{
-            
-            cli.hgetall('post:'+id,(err,post)=>{
+            //console.log('postId:',id);
+            cli.hgetall('posts:'+id,(err,post)=>{
                 if(err)return cb(err);
+                //console.log('post:',post);
                 cb(null,post);
             });
         },(err,posts)=>{
             if(err)return next(err);
-            ep.emit('send',{user:ret.user,posts:posts});
+            ep.emit('send',{postUser:ret.user,posts:posts});
         });
     });
-
 
     return;
     User.get(req.params.name, function (err, user) {

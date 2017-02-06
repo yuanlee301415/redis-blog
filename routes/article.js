@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var checkLogin =require('../middleware/checkLogin');
+var config=require('../config');
 var cli=require('redis').createClient({db:1});
 var Ep=require('eventproxy');
 var async=require('async');
@@ -14,14 +15,14 @@ router.get('/:postId', (req,res,next)=>{
     cli.hgetall(key,(err,ret)=>{
         if(err)return next(err);
         if(!ret)return req.flash('error','文章不存在或已经删除！'),res.redirect('/notify');
-        console.log('getPost>ret:',key,ret);
-        ret.tags=ret.tags.split('-');
-        console.log('getPost>ret2:',key,ret);
+        //console.log('getPost>ret:',key,ret);
+        ret.tags=ret.tags.split(',');
+        //console.log('getPost>ret2:',key,ret);
         res.render('article',{
             title:'博客详细页',
             post:ret,
             user:req.session.user,
-            op:req.session.user.id==ret.userId,
+            op:req.session.user&&req.session.user.id==ret.userId,
             success:req.flash('success').toString(),
             error:req.flash('error').toString(),
             refer:req.url

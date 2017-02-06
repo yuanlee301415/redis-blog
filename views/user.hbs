@@ -1,0 +1,19 @@
+{{> header}}
+
+    <div class="user det">
+        <div class="userBox">
+            <div class="face"><img src="/images/faces/{{postUser.face}}" alt=""/></div>
+            <div class="info">
+                <p>用户名：{{postUser.name}}</p>
+                <p>邮箱：{{postUser.email}}</p>
+                <p>注册时间：{{postUser.regTime}}</p>
+            </div>
+        </div>
+        {{#if posts.length}}
+        {{> postList }}
+        {{else}}
+        <div class="noData">没有数据。。。</div>
+        {{/if}}
+    </div>
+
+{{> footer}}
