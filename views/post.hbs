@@ -3,7 +3,7 @@
   <div class="post det">
     <form method="post">
         标题：<br/>
-        <input type="text" name="title" value="{{user.name}}--"/><br/>
+        <input type="text" name="title" value="{{user.name}}-"/><br/>
         标签：<br>
         {{#each postTags}}
             <input type="checkbox" name="tag-{{.}}" value="NodeJS"/>{{.}}&nbsp;
@@ -16,3 +16,14 @@
   </div>
 
 {{> footer}}
+
+{{#section 'script'}}
+    <script src="/javascripts/lib/jquery-2.1.4.min.js"></script>
+    <script>
+        $(function(){
+            //随机勾选一个Tag
+            var $chks=$('.post :checkbox');
+            $chks.eq($chks.length*Math.random()|0).prop('checked',true);
+        });
+    </script>
+{{/section}}

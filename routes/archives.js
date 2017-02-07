@@ -2,19 +2,17 @@ var express = require('express');
 var router = express.Router();
 var checkLogin =require('../middleware/checkLogin');
 var cli=require('redis').createClient({db:1});
-//var Ep=require('eventproxy');
 var async=require('async');
 var _=require('underscore');
-
 
 module.exports = router;
 
 //分类归档
-router.get('/', (req, res)=>{
+router.get('/', (req, res,next)=>{
     async.waterfall([
         (cb)=>{
             cli.zrevrange('archivesIndex',0,-1,(err,archives)=>{
-                console.log('archives:',err,archives);
+                //console.log('archives:',err,archives);
                 if(err)return cb(err);
                 cb(null,archives);
             });
@@ -28,30 +26,45 @@ router.get('/', (req, res)=>{
                     ecb();
                 });
             },(err)=>{
-                console.log('archives:',err,archiveGroups);
+                //console.log('archives:',err,archiveGroups);
                 if(err)return cb(err);
                 cb(null,archiveGroups);
             });
         },
         (groups,cb)=>{
             async.each(groups,(group,ecb)=>{
-                group.posts=[];
                 async.map(group.ids,(id,mcb)=>{
                     cli.hgetall('posts:'+id,(err,post)=>{
                         if(err)return mcb(err);
-                        cb(null,post);
+                        mcb(null,post);
                     });
                 },(err,posts)=>{
                     if(err)return ecb(err);
-                    //filter
+                    //过滤具体归档日期下的不存在的Post
+                    group.posts=posts.filter((post)=>{return post;});
+                    ecb();
                 });
+            },(err)=>{
+                if(err)return next(err);
+                //过滤没有任何POST的归档日期
+                groups=groups.filter((group)=>{
+                    return group&&group.posts.length>0;
+                });
+                cb(null,groups);
             });
         }
-    ],(err,posts)=>{
-        console.log('post:',err,posts);
+    ],(err,groups)=>{
+        //console.log('归档：',err,groups);
         if(err)return next(err);
-
+        res.render('archives',{
+            title:'分类归档',
+            user:req.session.user,
+            groups:groups,
+            success:req.flash('success'),
+            error:req.flash('error')
+        });
     });
+
   return;
   Post.getArchive(function(err,list){
     if(err){

@@ -69,7 +69,7 @@ app.use('/article', require('./routes/article'));//博客详细+评论博客
 app.use('/edit', require('./routes/edit'));//编辑博客
 app.use('/remove', require('./routes/remove'));//删除博客
 
-app.use('/archive', require('./routes/archive'));//归档分类
+app.use('/archives', require('./routes/archives'));//归档分类
 app.use('/tags', require('./routes/tags'));//标签
 app.use('/search', require('./routes/search'));//搜索
 app.use('/reprint', require('./routes/reprint'));//转载
