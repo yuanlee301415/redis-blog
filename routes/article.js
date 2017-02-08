@@ -18,6 +18,7 @@ router.get('/:postId', (req,res,next)=>{
         //console.log('getPost>ret:',key,ret);
         ret.tags=ret.tags.legnth?ret.tags.split(','):[];
         //console.log('getPost>ret2:',key,ret);
+
         res.render('article',{
             title:'博客详细页',
             post:ret,
@@ -25,7 +26,7 @@ router.get('/:postId', (req,res,next)=>{
             op:req.session.user&&req.session.user.id==ret.userId,
             success:req.flash('success').toString(),
             error:req.flash('error').toString(),
-            refer:req.url
+            refer:req.originalUrl
         });
         cli.hincrby(key,'pv',1);
     });

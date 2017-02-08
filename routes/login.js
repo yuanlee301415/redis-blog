@@ -13,11 +13,15 @@ router.get('/',checkNotLogin, function (req, res) {
 
 router.post('/',checkNotLogin, function (req, res,next) {
   var name=req.body.name,password=crypto.createHash('md5').update(req.body.password).digest('hex'),ep=new Ep();
+  var refer=req.body.refer || req.query.refer;
+
   ep.fail(next);
   ep.on('login_error',(msg)=>{
     req.flash('error',msg);
-    res.redirect('/login');
+    res.redirect('/login'+(refer?'?refer='+refer:''));
   });
+
+
   cli.hgetall('users:'+name,(err,user)=>{
     if(err)return ep.emit('login_error','查询错误');
     if(!user || name !== user.name || password !== user.password)return ep.emit('login_error','用户名或密码错误');
@@ -27,8 +31,8 @@ router.post('/',checkNotLogin, function (req, res,next) {
       email:user.email
     };
     req.flash('success','登录成功');
-    if(req.body.refer){
-      res.redirect(req.body.refer);
+    if(refer){
+      res.redirect(refer);
     }else{
       res.redirect('/post');
     }

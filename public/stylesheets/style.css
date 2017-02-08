@@ -1,5 +1,5 @@
 *{padding:0;margin:0;}
-body{width:100%;margin:2em auto;font-size:14px;font-family:"Microsoft YaHei";color:#3f3f3f;}
+body{width:100%;font-size:14px;font-family:"Microsoft YaHei";color:#3f3f3f;}
 li {list-style: none;}
 .success,.error  {
     line-height: 30px;
@@ -15,7 +15,7 @@ li {list-style: none;}
     color:#c00;
 }
 
-header{padding:.5em 0;border-bottom:1px solid #cccccc; margin-bottom: 20px;text-align: center;}
+header{padding:1.5em 0 .5em;border-bottom:1px solid #cccccc; margin-bottom: 20px;text-align: center;}
 nav{float:left;font-family:"Microsoft YaHei";font-size:1.1em;text-transform:uppercase;width:9em;text-align:right;}
 nav a{display:block;text-decoration:none;padding:.7em 1em;color:#000000;}
 nav a:hover{background-color:#ff0000;color:#f9f9f9;-webkit-transition:color .2s linear;}
