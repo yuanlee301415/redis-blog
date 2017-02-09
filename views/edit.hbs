@@ -3,7 +3,7 @@
   <div class="post det">
     <form action="/edit/{{post.id}}" method="post">
         标题：<br/>
-        <input value="{{ post.title }}" name="title" type="text" disabled /><br>
+        <input value="{{ post.title }}" name="title" type="text" /><br>
         {{#if post.tags.length}}
         标签：<br>
             {{#each post.tags}}

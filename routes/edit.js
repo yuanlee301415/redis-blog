@@ -54,7 +54,7 @@ router.post('/:postId', function (req, res) {
       }
     });
 
-    cli.hmset('posts:'+postId,['tags',tags.join(','),'content',body.content],(err)=>{
+    cli.hmset('posts:'+postId,['title',body.title,'content',body.content,'tags',tags.join(',')],(err)=>{
       if(err)return next(err);
       res.redirect('/article/'+postId);
     });
