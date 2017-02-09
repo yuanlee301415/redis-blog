@@ -110,6 +110,12 @@ router.post('/:postId',checkLogin, function (req,res,next) {
                     if(err)return cb(err);
                     cb();
                 });
+            },
+            (cb)=>{//更新话题评论数
+                cli.hincrby('posts:'+postId,['commentCnt',1],(err)=>{
+                    if(err)return cb(err);
+                    cb();
+                });
             }
         ],(err)=>{
             if(err)return next(err);
