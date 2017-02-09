@@ -147,7 +147,8 @@ article a:hover{color:#333333;text-decoration:underline;}
     background-color: #ccc;
 }
 .article .list>li {
-    border: none;
+    border-top:1px solid #ccc;
+    border-bottom:none;
 }
 .article .list h2 {
     line-height:40px;

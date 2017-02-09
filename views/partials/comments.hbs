@@ -21,7 +21,28 @@
 <div class="noData">没有数据。。。</div>
 
 <%}%>-->
-<div class="noData">没有数据。。。</div>
+{{#if comments.length}}
+
+    <ul class="list commentsList">
+    {{#each comments as |comment|}}
+        <li>
+            <dl class="user">
+                <dt>
+                    <a href="/user/{{comment.user.name}}"><img src="/images/faces/{{comment.user.face}}" alt=""></a>
+                </dt>
+                <dd>
+                    <p><a href="/user/{{comment.user.name}}">{{comment.user.name}}</a>&emsp;<span>{{comment.time}}</span></p>
+                    <div>{{comment.comment}}</div>
+                </dd>
+            </dl>
+        </li>
+    {{/each}}
+    </ul>
+
+{{else}}
+    <div class="noData">没有数据。。。</div>
+{{/if}}
+
 
 <form method="post" class="commentForm">
     <div class="title">发表评论：</div>
