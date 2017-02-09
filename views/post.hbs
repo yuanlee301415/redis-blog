@@ -6,7 +6,7 @@
         <input type="text" name="title" value="{{user.name}}-"/><br/>
         标签：<br>
         {{#each postTags}}
-            <input type="checkbox" name="tag-{{.}}" value="NodeJS"/>{{.}}&nbsp;
+            <input type="checkbox" name="tag-{{.}}" value="{{.}}"/>{{.}}&nbsp;
         {{/each}}
         <br>
         正文：<br/>

@@ -1,26 +1,5 @@
 <p class="commentsListTitle">评论列表：</p>
-<!--<%if(post.comments.length){%>
-<ul class="list commentsList">
-<% post.comments.forEach(function (comment, i) {%>
-    <li>
-        <dl class="user">
-            <dt>
-                <a href="/user/<%= comment.user.name %>"><img src="<%=comment.user.face%>" /></a>
-            </dt>
-            <dd>
-                <a href="/user/<%= comment.user.name %>"><%= comment.user.name %></a>
-                <span>&emsp;回复于：<%= comment.time %></span>
-                <div><%= comment.user.email%></div>
-            </dd>
-        </dl>
-        <div><%- comment.content %></div>
-    </li>
-<%});%>
-</ul>
-<%}else{%>
-<div class="noData">没有数据。。。</div>
 
-<%}%>-->
 {{#if comments.length}}
 
     <ul class="list commentsList">

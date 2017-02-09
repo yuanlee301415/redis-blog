@@ -7,13 +7,13 @@
                 {{#if user}}
                     {{#if op}}
                         <div class="edit">
-                            <a href="/edit/{{post._id}}" class="edit">编辑</a> |
-                            <a href="/remove/{{post._id}}" class="edit">删除</a>
+                            <a href="/edit/{{post.id}}" class="edit">编辑</a> |
+                            <a href="/remove/{{post.id}}" class="edit">删除</a>
                         </div>
                     {{/if}}
                     {{#if reprint}}
                         <div class="edit">
-                            <a href="/reprint/{{post._id}}" class="edit">转载</a>
+                            <a href="/reprint/{{post.id}}" class="edit">转载</a>
                         </div>
                     {{/if}}
                 {{/if}}

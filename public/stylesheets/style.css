@@ -146,9 +146,9 @@ article a:hover{color:#333333;text-decoration:underline;}
     text-align: center;
     background-color: #ccc;
 }
-.article .list>li {
-    border-top:1px solid #ccc;
-    border-bottom:none;
+.article .commentsList>li {
+    border-bottom:1px solid #ccc;
+    border-top:none;
 }
 .article .list h2 {
     line-height:40px;
