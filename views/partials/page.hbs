@@ -1,0 +1,21 @@
+<div class="page">
+    {{#unless page.isFirstPage}}
+    <a href="{{page.path}}{{page.first}}" class="first">First</a>
+    <a href="{{page.path}}{{page.prev}}" class="prev">&lt;&lt;Prev</a>
+    {{/unless}}
+
+    {{#each page.pages}}
+        {{#if this.isCurr}}
+            <span>{{this.num}}</span>
+        {{else}}
+            <a href="{{../path}}p={{this.num}}">{{this.num}}</a>
+        {{/if}}
+    {{/each}}
+
+    {{#unless page.isLastPage}}
+    <a href="{{page.path}}{{page.next}}" class="next">Next&gt;&gt;</a>
+    <a href="{{page.path}}{{page.last}}" class="last">Last</a>
+    {{/unless}}
+
+    <span>&emsp;|&emsp;Page: {{page.curr}} / {{page.total}}</span>
+</div>
