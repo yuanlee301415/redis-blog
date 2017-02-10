@@ -17,13 +17,15 @@ router.get('/', function (req, res, next) {
         (ids,cb)=>{
             async.map(ids,(id,ecb)=>{
                 cli.hgetall('posts:'+id,(err,post)=>{
-                    //console.log('posts:'+id,err,post);
+                    console.log('posts:'+id,err,id);
+                    console.log(post.id);
                     if(err)return next(err);
                     ecb(null,post);
                 });
             },(err,ret)=>{
                 if(err)return next(err);
                 ret.forEach((post)=>{
+                    //console.log('post:',post);
                     post.tags=post.tags.length?post.tags.split(',').map((tag)=>{
                         return {
                             name:tag,
