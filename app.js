@@ -75,6 +75,7 @@ app.use('/search', require('./routes/search'));//搜索
 app.use('/reprint', require('./routes/reprint'));//转载
 
 app.use('/notify', require('./routes/notify'));//转载
+app.use('/sort', require('./routes/sort'));//转载
 
 app.use('/api', require('./routes/api'));//api
 app.use('/api', function (req, res, next) {
