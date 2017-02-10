@@ -17,7 +17,7 @@ router.get('/:postId', (req,res,next)=>{
     async.waterfall([
         (cb)=>{
             cli.hgetall(key,(err,post)=>{
-                console.log('post:',err,post);
+                //console.log('post:',err,post);
                 if(err)return next(err);
                 if(!post)return req.flash('error','文章不存在或已经删除！'),res.redirect('/notify');
                 post.tags=post.tags.length?post.tags.split(','):[];
@@ -59,8 +59,8 @@ router.get('/:postId', (req,res,next)=>{
             });
         }
     ],(err,post,comments)=>{
-        console.log('post ret:',err,post);
-        console.log('comments ret:',err,comments);
+        //console.log('post ret:',err,post);
+        //console.log('comments ret:',err,comments);
         if(err)return next(err);
         res.render('article',{
             title:'博客详细页',
