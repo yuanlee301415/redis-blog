@@ -14,20 +14,21 @@ router.get('/', function (req, res, next) {
             async.parallel({
                 total:(pcb)=>{
                     cli.zcard('postIds',(err,total)=>{
+                        console.log('total:',err,total);
                         if(err)return cb(err);
                         pcb(null,total);
                     })
                 },
                 ids:(pcb)=>{
-                    console.log('skip:',limit*(p-1), limit*p);
+                    console.log('skip:',limit*(p-1), limit*p-1);
                     cli.zrevrange('postIds', limit*(p-1), limit*p-1, (err, ids)=> {
-                        console.log('postIds:',err,ids);
+                        //console.log('postIds:',err,ids);
                         if (err)return cb(err);
                         pcb(null, ids);
                     });
                 }
             },(err,ret)=>{
-                console.log('total ret:',err,ret);
+                //console.log('total ret:',err,ret);
                 if(err)return cb(err);
                 cb(null,ret);
             })
@@ -50,7 +51,7 @@ router.get('/', function (req, res, next) {
                             curr:false
                         }
                     }):[];
-                    console.log('post title:',post.title);
+                    //console.log('post title:',post.title);
                 });
                 ret.posts=posts;
                 cb(null,ret);
@@ -86,35 +87,6 @@ router.get('/', function (req, res, next) {
             title:'Home',
             posts:ret.posts,
             page:page,
-            user:req.session.user,
-            success:req.flash('success').toString(),
-            error:req.flash('error').toString()
-        });
-    });
-
-    return;
-    var p=req.query.p?parseInt(req.query.p):1;
-    var limit=10;
-    Post.getAll(null,p,limit,function (err, posts,total) {
-        if(err)posts=[];
-        posts.forEach(function(post){
-            post.desc=post.post.match(/<p>.+<\/p>/)[0];
-        });
-        var pageCnt=Math.ceil(total/limit);
-        res.render('index',{
-            title:'主页',
-            posts:posts,
-            page:{
-                curr:p,
-                total:pageCnt,
-                path:'/?',
-                first:'p=1',
-                prev:'p='+(p-1),
-                next:'p='+(p+1),
-                last:'p='+pageCnt,
-                isFirstPage:p==1,
-                isLastPage:(p-1)*limit+posts.length>=total
-            },
             user:req.session.user,
             success:req.flash('success').toString(),
             error:req.flash('error').toString()
