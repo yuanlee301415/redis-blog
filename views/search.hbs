@@ -1,0 +1,10 @@
+{{>header}}
+
+    <div class="search det">
+        {{#if posts}}
+        {{> postList }}
+        {{else}}
+        <div class="noData">没有数据。。。</div>
+        {{/if}}
+    </div>
+{{>footer}}
