@@ -18,17 +18,31 @@ router.get('/', (req, res)=>{
 
 //指定标签下的博客
 router.get('/:tag', (req, res,next)=>{
-    var currTag=req.params.tag;
+    var currTag=req.params.tag,p=parseInt(req.query.p) || 1,limit=5;
+
     async.waterfall([
         (cb)=>{
-            cli.zrevrange('tags:'+currTag,0,-1,(err,postIds)=>{
+            async.parallel({
+                total:(pcb)=>{
+                    cli.zcard('tags:'+currTag,(err,total)=>{
+                        if(err)return pcb(err);
+                        pcb(null,total);
+                    })
+                },
+                postIds:(pcb)=>{
+                    cli.zrevrange('tags:'+currTag,limit*(p-1),limit*p-1,(err,postIds)=>{
+                        if(err)return pcb(err);
+                        //console.log('postIds:',req.params.tag,postIds);
+                        pcb(null,postIds);
+                    });
+                }
+            },(err,data)=>{
                 if(err)return cb(err);
-                //console.log('postIds:',req.params.tag,postIds);
-                cb(null,postIds);
+                cb(null,data);
             });
         },
-        (postIds,cb)=>{
-            async.map(postIds,(id,mcb)=>{
+        (data,cb)=>{
+            async.map(data.postIds,(id,mcb)=>{
                 cli.hgetall('posts:'+id,(err,post)=>{
                     if(err)return mcb(err);
                     mcb(null,post);
@@ -47,55 +61,41 @@ router.get('/:tag', (req, res,next)=>{
                         }
                     });
                 });
-                cb(null,posts);
+                data.posts=posts;
+                cb(null,data);
             });
         }
-    ],(err,posts)=>{
+    ],(err,data)=>{
         //console.log('posts:',err,posts);
         if(err)return next(err);
+        var pageCnt=Math.ceil(data.total/limit);
+
         res.render('tag',{
             title:'Tag:'+req.params.tag,
             user:req.session.user,
-            posts:posts,
+            posts:data.posts,
+            page:{
+                curr:p,
+                total:pageCnt,
+                pages:(()=>{
+                    var i=1,pages=[];
+                    while(i<=pageCnt){
+                        pages.push({num:i,isCurr:i==p});
+                        i++;
+                    }
+                    return pages;
+                })(),
+                path:'/tags/'+currTag+'?',
+                first:'p=1',
+                prev:'p='+(p-1),
+                next:'p='+(p+1),
+                last:'p='+pageCnt,
+                isFirstPage:p==1,
+                isLastPage:(p-1)*limit+data.posts.length==data.total
+            },
             success:req.flash('success').toString(),
             error:req.flash('error').toString()
         });
     });
 
-    return;
-  var p=req.query.p?parseInt(req.query.p):1;
-  var limit=2;
-  Post.getTag(req.params.tag,p,limit,function(err,posts,total){
-    if(err){
-      req.flash('error','查询此标签下的博客失败');
-      return res.render('error',{
-        message:'查询此标签下的博客失败',
-        error:err
-      });
-    }
-    posts.forEach(function(post){
-      var desc=post.post.match(/<p>.+<\/p>/);
-      desc=desc?desc[0]:post.post;
-      post.desc=desc;
-    });
-    var pageCnt=Math.ceil(total/limit);
-    res.render('tag',{
-      title:'TAG:'+req.params.tag,
-      user:req.session.user,
-      posts:posts,
-      page:{
-        curr:p,
-        total:pageCnt,
-        path:'/tag/'+req.params.tag+'?',
-        first:'p=1',
-        prev:'p='+(p-1),
-        next:'p='+(p+1),
-        last:'p='+pageCnt,
-        isFirstPage:p==1,
-        isLastPage:(p-1)*limit+posts.length==total
-      },
-      success:req.flash('success').toString(),
-      error:req.flash('error').toString()
-    });
-  });
 });

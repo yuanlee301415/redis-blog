@@ -32,7 +32,7 @@ router.get('/', function (req, res, next) {
             });
             var i=1;
             posts.forEach((post)=>{
-                post.title='aa-'+(i++);
+                post.title=post.userName+'-'+(i++);
             });
             cb(null,posts);
         },
