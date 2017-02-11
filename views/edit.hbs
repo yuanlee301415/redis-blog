@@ -4,13 +4,13 @@
     <form action="/edit/{{post.id}}" method="post">
         标题：<br/>
         <input value="{{ post.title }}" name="title" type="text" /><br>
-        {{#if post.tags.length}}
+
         标签：<br>
-            {{#each post.tags}}
-            <input type="checkbox" name="tag-{{this.name}}" value="{{this.name}}"{{#if this.checked}} checked{{/if}}/>{{this.name}}&nbsp;
-            {{/each}}
+        {{#each post.tags}}
+        <input type="checkbox" name="tag-{{this.name}}" value="{{this.name}}"{{#if this.checked}} checked{{/if}}/>{{this.name}}&nbsp;
+        {{/each}}
         <br>
-        {{/if}}
+
         正文：<br/>
         <textarea name="content" cols="50" rows="10">{{ post.content }}</textarea><br/>
         <input type="hidden" name="id" value="{{ post.id }}"/>

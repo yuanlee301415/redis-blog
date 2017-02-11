@@ -14,13 +14,13 @@ router.get('/', function (req, res, next) {
             async.parallel({
                 total:(pcb)=>{
                     cli.zcard('postIds',(err,total)=>{
-                        console.log('total:',err,total);
+                        //console.log('total:',err,total);
                         if(err)return cb(err);
                         pcb(null,total);
                     })
                 },
                 ids:(pcb)=>{
-                    console.log('skip:',limit*(p-1), limit*p-1);
+                    //console.log('skip:',limit*(p-1), limit*p-1);
                     cli.zrevrange('postIds', limit*(p-1), limit*p-1, (err, ids)=> {
                         //console.log('postIds:',err,ids);
                         if (err)return cb(err);
@@ -81,7 +81,7 @@ router.get('/', function (req, res, next) {
             isFirstPage:p==1,
             isLastPage:(p-1)*limit+ret.posts.length>=ret.total
         };
-        console.log('page:',page);
+        //console.log('page:',page);
 
         res.render('index',{
             title:'Home',
