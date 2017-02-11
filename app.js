@@ -78,9 +78,6 @@ app.use('/notify', require('./routes/notify'));//转载
 app.use('/sort', require('./routes/sort'));//转载
 
 app.use('/api', require('./routes/api'));//api
-app.use('/api', function (req, res, next) {
-  res.send({error:{code:404,message:'API Not Found'}});
-});
 
 // error handlers
 app.use(function(req, res, next) {

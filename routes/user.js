@@ -7,7 +7,9 @@ module.exports = router;
 
 //用户博客列表
 router.get('/:name', function (req, res, next) {
-    var authorName=req.params.name,ep=new Ep(),p=parseInt(req.query.p) || 1,limit=5;
+    var authorName=req.params.name,ep=new Ep();
+    var p=(parseInt(req.query.p,10)||1),limit=5;
+    p=p>0?p:1;
     //console.log('username:',name);
     ep.fail(next);
     ep.on('author_error',()=>{

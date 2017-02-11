@@ -5,6 +5,14 @@ var crypto = require('crypto');
 module.exports = router;
 
 //API
+router.post('/post', function (req, res, next) {
+    var body=req.body;
+    console.log('body:',body);
+    res.json(body);
+});
+
+
+/*
 router.get('/users', function (req, res) {
   User.getAll(function (err, users) {
     if(err || !users)return res.json({error:{code:500,message:'Internet Server error.'}});
@@ -41,7 +49,4 @@ router.get('/posts/:name/:page',function(req,res,next){
 
   });
 });
-
-router.put('/api/post', function (req, res, next) {
-  res.send({method:req.method,body:req.body});
-});
+*/

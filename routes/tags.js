@@ -18,7 +18,9 @@ router.get('/', (req, res)=>{
 
 //指定标签下的博客
 router.get('/:tag', (req, res,next)=>{
-    var currTag=req.params.tag,p=parseInt(req.query.p) || 1,limit=5;
+    var currTag=req.params.tag;
+    var p=(parseInt(req.query.p,10)||1),limit=5;
+    p=p>0?p:1;
 
     async.waterfall([
         (cb)=>{
