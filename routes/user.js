@@ -18,7 +18,7 @@ router.get('/:name', function (req, res, next) {
     async.waterfall([
         (cb)=>{
             cli.hgetall('users:'+authorName,(err,author)=>{
-                console.log('author:',author);
+                //console.log('author:',author);
                 if(err)return cb(err);
                 if(!author)return ep.emit('author_error');
                 cb(null,author);
@@ -28,15 +28,15 @@ router.get('/:name', function (req, res, next) {
             async.parallel({
                total:(pcb)=>{
                    cli.zcard('userPosts:'+author.name,(err,total)=>{
-                       console.log('total:',total);
+                       //console.log('total:',total);
                        if(err)return pcb(err);
                        pcb(null,total);
                    });
                },
                 postIds:(pcb)=>{
-                    console.log('skip:',limit*(p-1),limit*p-1);
-                    cli.zrange('userPosts:'+author.name,limit*(p-1),limit*p-1,(err,postIds)=>{
-                        console.log('postIds:',err,postIds);
+                    //console.log('skip:',limit*(p-1),limit*p-1);
+                    cli.zrevrange('userPosts:'+author.name,limit*(p-1),limit*p-1,(err,postIds)=>{
+                        //console.log('postIds:',err,postIds);
                         if(err)return cb(err);
                         pcb(null,postIds);
                     });
@@ -44,16 +44,16 @@ router.get('/:name', function (req, res, next) {
             },(err,ret)=>{
                 if(err)return cb(err);
                 ret.author=author;
-                console.log('parallel ret:',ret);
+                //console.log('parallel ret:',ret);
                 cb(null,ret);
             });
         },
         (data,cb)=>{
             async.map(data.postIds,(id,cb)=>{
-                console.log('postId:',id);
+                //console.log('postId:',id);
                 cli.hgetall('posts:'+id,(err,post)=>{
                     if(err)return cb(err);
-                    console.log('post:',post);
+                    //console.log('post:',post);
                     cb(null,post);
                 });
             },(err,posts)=>{
