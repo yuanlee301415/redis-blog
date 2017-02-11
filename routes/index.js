@@ -6,7 +6,7 @@ var Ep=require('eventproxy');
 module.exports = router;
 
 router.get('/', function (req, res, next) {
-    var p=req.query.p?parseInt(req.query.p):1;
+    var p=parseInt(req.query.p)||1;
     var limit=10;
 
     async.waterfall([

@@ -64,7 +64,7 @@ article a:hover{color:#333333;text-decoration:underline;}
 .page {
     padding-top: 30px;
 }
-.page a {
+.page a,.page span {
     margin-right: 10px;
 }
 .page .prev a{float:left;text-decoration:none;padding:.5em 1em;color:#ff0000;font-weight:bold;}
