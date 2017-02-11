@@ -2,9 +2,6 @@ var express = require('express');
 var router = express.Router();
 var crypto = require('crypto');
 
-var User = require('../modules/user');
-var Post = require('../modules/post');
-
 module.exports = router;
 
 //API
