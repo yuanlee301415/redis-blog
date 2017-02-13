@@ -10,8 +10,6 @@ var config = require('./config');
 var path = require('path');
 var fs = require('fs');
 var app = express();
-var port=3015;
-var colors=require('colors');
 var morgan = require('morgan');
 var redis=require('redis');
 var exHbs=require('express-handlebars').create({
@@ -25,15 +23,7 @@ var exHbs=require('express-handlebars').create({
         }
     }
 });
-
-colors.setTheme({
-  info: 'green',
-  data: 'blue',
-  warn: 'yellow',
-  debug: 'magenta',
-  error: 'red'
-});
-
+app.set('port',3015);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
 app.engine('hbs',exHbs.engine);
@@ -71,13 +61,10 @@ app.use('/remove', require('./routes/remove'));//删除博客
 
 app.use('/archives', require('./routes/archives'));//归档分类
 app.use('/tags', require('./routes/tags'));//标签
-app.use('/search', require('./routes/search'));//搜索
 app.use('/reprint', require('./routes/reprint'));//转载
 
-app.use('/notify', require('./routes/notify'));//转载
-app.use('/sort', require('./routes/sort'));//转载
+app.use('/notify', require('./routes/notify'));//通知
 
-app.use('/api', require('./routes/api'));//api
 
 // error handlers
 app.use(function(req, res, next) {
@@ -108,6 +95,6 @@ app.use(function(err, req, res, next) {
   });
 });
 
-app.listen(port, function () {
-  console.log('---------------------------','Redis Blog port:',port,'----',new Date().toLocaleTimeString(),'---------------------------');
+app.listen(app.get('port'), function () {
+  console.log('---------------------------','Redis Blog port:',app.get('port'),'----',new Date().toLocaleTimeString(),'---------------------------');
 });
