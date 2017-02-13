@@ -4,7 +4,7 @@
         {{#each groups as |group|}}
 
             <dl>
-                <dt><a href="/archives/{{group.archive}}">{{group.archive}}</a></dt>
+                <dt>{{group.archive}}</dt>
                 {{#each group.posts as |post|}}
                 <dd>
                     <span>{{post.time}}</span>
@@ -12,6 +12,9 @@
                     (作者：<a href="/user/{{ post.userName }}">{{post.userName}}</a>)
                 </dd>
                 {{/each}}
+                {{#if group.more}}
+                    <a href="/archives/{{group.archive}}">>>More</a>
+                {{/if}}
             </dl>
 
 

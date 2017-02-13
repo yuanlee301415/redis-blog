@@ -33,7 +33,8 @@ router.get('/', (req, res,next)=>{
         },
         (groups,cb)=>{
             async.each(groups,(group,ecb)=>{
-                async.map(group.ids,(id,mcb)=>{
+                group.more=group.ids.length>10;
+                async.map(group.ids.slice(0,10),(id,mcb)=>{
                     cli.hgetall('posts:'+id,(err,post)=>{
                         if(err)return mcb(err);
                         mcb(null,post);
@@ -54,7 +55,7 @@ router.get('/', (req, res,next)=>{
             });
         }
     ],(err,groups)=>{
-        //console.log('归档：',err,groups);
+        console.log('归档：',err,groups);
         if(err)return next(err);
         res.render('archives',{
             title:'分类归档',
@@ -64,19 +65,66 @@ router.get('/', (req, res,next)=>{
             error:req.flash('error')
         });
     });
+});
 
-  return;
-  Post.getArchive(function(err,list){
-    if(err){
-      console.log('archive:',err);
-      return res.redirect('/');
-    }
-    res.render('archive',{
-      title:'分类归档',
-      user:req.session.user,
-      list:list,
-      success:req.flash('success'),
-      error:req.flash('error')
+router.get('/:archive',(req,res,next)=>{
+    var p=parseInt(req.query.p,10)||1,limit=3,archive=req.params.archive;
+    p=p>0?p:1;
+
+    async.waterfall([
+        (cb)=>{
+            async.parallel({
+               total:(pcb)=>{
+                    cli.zcard('archives:'+archive,(err,total)=>{
+                        //console.log('total:',err,total);
+                        if(err)return pcb(err);
+                        pcb(null,total);
+                    });
+               },
+               ids:(pcb)=>{
+                   cli.zrevrange('archives:'+archive,0,-1,(err,ids)=>{
+                       //console.log('ids:',err,ids);
+                       if(err)return pcb(err);
+                       pcb(null,ids);
+                   });
+               }
+            },(err,ret)=>{
+                if(err)return cb(err);
+                cb(null,ret);
+            });
+        },
+        (data,cb)=>{
+            //console.log('data:',data);
+
+            async.map(data.ids,(id,mcb)=>{
+               cli.hmget('posts:'+id,['title','userName','time'],(err,post)=>{
+                   post=_.object(['title','userName','time'],post);
+                   mcb(null,post);
+               });
+            },(err,posts)=>{
+                //console.log('posts:',posts);
+
+                data.posts=posts.filter((post)=>{return post;});
+                cb(null,data);
+            });
+        }
+    ],(err,data)=>{
+        if(err)return next(err);
+        var groups=[{
+            archive:archive,
+            total:data.total,
+            posts:data.posts
+        }];
+        //console.log('groups:',err,groups);
+
+        res.render('archives',{
+            title:'分类归档',
+            user:req.session.user,
+            groups:groups,
+            success:req.flash('success'),
+            error:req.flash('error')
+        });
+
     });
-  });
+
 });
