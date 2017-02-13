@@ -55,7 +55,7 @@ router.get('/', (req, res,next)=>{
             });
         }
     ],(err,groups)=>{
-        console.log('归档：',err,groups);
+        //console.log('归档：',err,groups);
         if(err)return next(err);
         res.render('archives',{
             title:'分类归档',
@@ -68,52 +68,31 @@ router.get('/', (req, res,next)=>{
 });
 
 router.get('/:archive',(req,res,next)=>{
-    var p=parseInt(req.query.p,10)||1,limit=3,archive=req.params.archive;
-    p=p>0?p:1;
+    var archive=req.params.archive;
 
     async.waterfall([
         (cb)=>{
-            async.parallel({
-               total:(pcb)=>{
-                    cli.zcard('archives:'+archive,(err,total)=>{
-                        //console.log('total:',err,total);
-                        if(err)return pcb(err);
-                        pcb(null,total);
-                    });
-               },
-               ids:(pcb)=>{
-                   cli.zrevrange('archives:'+archive,0,-1,(err,ids)=>{
-                       //console.log('ids:',err,ids);
-                       if(err)return pcb(err);
-                       pcb(null,ids);
-                   });
-               }
-            },(err,ret)=>{
+            cli.zrevrange('archives:'+archive,0,-1,(err,ids)=>{
                 if(err)return cb(err);
-                cb(null,ret);
+                cb(null,ids);
             });
         },
-        (data,cb)=>{
-            //console.log('data:',data);
-
-            async.map(data.ids,(id,mcb)=>{
-               cli.hmget('posts:'+id,['title','userName','time'],(err,post)=>{
-                   post=_.object(['title','userName','time'],post);
+        (ids,cb)=>{
+            async.map(ids,(id,mcb)=>{
+               cli.hmget('posts:'+id,['id','title','userName','time'],(err,post)=>{
+                   post=_.object(['id','title','userName','time'],post);
                    mcb(null,post);
                });
             },(err,posts)=>{
-                //console.log('posts:',posts);
-
-                data.posts=posts.filter((post)=>{return post;});
-                cb(null,data);
+                posts=posts.filter((post)=>{return post;});
+                cb(null,posts);
             });
         }
-    ],(err,data)=>{
+    ],(err,posts)=>{
         if(err)return next(err);
         var groups=[{
             archive:archive,
-            total:data.total,
-            posts:data.posts
+            posts:posts
         }];
         //console.log('groups:',err,groups);
 
