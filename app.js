@@ -3,14 +3,13 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
-var ConnectMongo = require('connect-mongo')(session);
 var flash = require('connect-flash');
 var config = require('./config');
 var path = require('path');
 var fs = require('fs');
 var app = express();
 var morgan = require('morgan');
-var redis=require('redis');
+var RedisStore = require('connect-redis')(session);
 var exHbs=require('express-handlebars').create({
     defaultLayout:'main',
     extname:'.hbs',
@@ -30,16 +29,12 @@ app.use(logger('dev'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(session({
-    secret: config.secret,
-    key: config.db,
-    cookie: {maxAge: 1000 * 60 * 60 * 24 * 30},//30 days
-    store: new ConnectMongo({
-        url: 'mongodb://localhost/RedisBlog'
-    })
+    store: new RedisStore({}),
+    secret: config.secret
 }));
 app.use(flash());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(morgan({stream:fs.createWriteStream('access.log')}));;
+app.use(morgan({stream:fs.createWriteStream('access.log')}));
 
 var errorLog=fs.createWriteStream('error.log');
 app.use(function (err,req,res,next) {
