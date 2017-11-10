@@ -1,5 +1,5 @@
 var router = require('express').Router();
-var cli=require('redis').createClient({db:1});
+var cli=require('redis').createClient({db:3});
 var Ep=require('eventproxy');
 var async=require('async');
 

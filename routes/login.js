@@ -2,8 +2,10 @@ var express = require('express');
 var router = express.Router();
 var crypto = require('crypto');
 var checkNotLogin = require('../middleware/checkNotLogin');
-var cli=require('redis').createClient({db:1});
+var cli=require('redis').createClient({db:3});
 var Ep=require('eventproxy');
+var config=require('../config');
+
 module.exports = router;
 
 //Login
@@ -22,8 +24,11 @@ router.post('/',checkNotLogin, function (req, res,next) {
   });
 
 
-  cli.hgetall('users:'+name,(err,user)=>{
+  cli.hgetall([config.name,'users',name].join(':'),(err,user)=>{
     if(err)return ep.emit('login_error','查询错误');
+    console.log('Find login user:',user);
+    console.log('Post user:',req.body);
+
     if(!user || name !== user.name || password !== user.password)return ep.emit('login_error','用户名或密码错误');
     req.session.user={
       id:user.id,

@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var checkName =require('../middleware/checkName');
-var cli=require('redis').createClient({db:1});
+var cli=require('redis').createClient({db:3});
 var postTags=require('../config').postTags;
 
 module.exports = router;

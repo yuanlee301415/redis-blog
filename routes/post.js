@@ -1,9 +1,10 @@
 var express = require('express');
 var router = express.Router();
 var checkLogin =require('../middleware/checkLogin');
+var config=require('../config.js');
 var postTags=require('../config.js').postTags;
 var Ep=require('eventproxy');
-var cli=require('redis').createClient({db:1});
+var cli=require('redis').createClient({db:3});
 var uuid=require('uuid/v4');
 var async=require('async');
 var moment=require('moment');
@@ -36,14 +37,14 @@ router.post('/',checkLogin, function (req, res,next) {
     async.parallel({
         postIds:(cb)=>{
             console.log('postIds:',[+date,postId]);
-            cli.zadd('postIds',[+date,postId],(err,ret)=>{
+            cli.zadd([config.name,'postIds'].join(':'),[+date,postId],(err,ret)=>{
                 if(err)return cb(err);
                 console.log('postIds>ret:',ret);
                 cb(null,ret);
             });
         },
         userPosts:(cb)=>{
-            cli.zadd('userPosts:'+user.name,[+date,postId],(err,ret)=>{
+            cli.zadd([config.name,'userPosts',user.name].join(':'),[+date,postId],(err,ret)=>{
                 if(err)return cb(err);
                 console.log('userPosts>ret:',ret);
                 cb(null,ret);
@@ -57,7 +58,7 @@ router.post('/',checkLogin, function (req, res,next) {
                 }
             });
             console.log('tags:',tags);
-            cli.hmset('posts:'+postId,[
+            cli.hmset([config.name,'posts',postId].join(':'),[
                     'id',postId,
                     'title',title,
                     'content',content,
@@ -83,7 +84,7 @@ router.post('/',checkLogin, function (req, res,next) {
             });
 
             async.each(tags,(tag,ecb)=>{
-                cli.zadd('tags:'+tag,[+date,postId],(err,ret)=>{
+                cli.zadd([config.name,'tags',tag].join(':'),[+date,postId],(err,ret)=>{
                     if(err)return ecb(err);
                     ecb(null,ret);
                 });
@@ -95,14 +96,14 @@ router.post('/',checkLogin, function (req, res,next) {
         archivesIndex:(cb)=>{
             var score=+new Date(date.getFullYear(),date.getMonth());//以当前时间的年月1日0点时间戳为score
             console.log('archivesIndex:score|val',score,ym);
-            cli.zadd('archivesIndex',[score,ym],(err,ret)=>{
+            cli.zadd([config.name,'archivesIndex'].join(':'),[score,ym],(err,ret)=>{
                 if(err)return cb(err);
                 console.log('archivesIndex>ret:',ret);
                 cb(null,ret);
             });
         },
         archives:(cb)=>{
-            cli.zadd('archives:'+ym,[+date,postId],(err,ret)=>{
+            cli.zadd([config.name,'archives',ym].join(':'),[+date,postId],(err,ret)=>{
                 if(err)return cb(err);
                 console.log('archives>ret:',ret);
                 cb(null,ret);
@@ -110,7 +111,7 @@ router.post('/',checkLogin, function (req, res,next) {
         }
     },(err,ret)=>{
         if(err)return console.log(err),ep.emit('post_err','保存POST错误');
-        cli.incr('posts:count',(err,ret)=>{
+        cli.incr([config.name,'posts','count'].join(':'),(err,ret)=>{
             if(err)return console.log(err),ep.emit('post_err','保存POST错误');
             console.log('posts:count>ret:',ret);
             console.log('Post saved!');

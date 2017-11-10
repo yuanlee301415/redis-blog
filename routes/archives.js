@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
-var checkLogin =require('../middleware/checkLogin');
-var cli=require('redis').createClient({db:1});
+var config =require('../config');
+var cli=require('redis').createClient({db:3});
 var async=require('async');
 var _=require('underscore');
 
