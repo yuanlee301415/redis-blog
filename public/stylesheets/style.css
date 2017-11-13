@@ -45,7 +45,6 @@ article a:hover{color:#333333;text-decoration:underline;}
 .archive dl {padding:5px 0 15px;margin:10px 0;border-bottom: 1px solid #999;}
 .archive dt {font-size: 18px;font-weight: bold;line-height: 32px;}
 .archive dd span {padding-right: 20px;}
-.tagsList a,.list .tag{text-decoration:none;background-color:#ccc;border-radius:3px;font-size:14px;color:#666;display:inline-block;padding:0 5px;margin-bottom:8px;}
 .list .tag.curr {color:#00a;}
 .tagsList .a:hover,.list .tag:hover{color:#00a;}
 .tagsList a {color: #333333;padding: 3px 5px;margin:5px 3px;}
