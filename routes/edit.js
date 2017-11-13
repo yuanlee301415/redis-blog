@@ -9,7 +9,6 @@ module.exports = router;
 //编辑博客
 router.get('/:postId',function (req, res) {
   var postId=req.params.postId;
-  console.log('Edit postId:',postId);
 
   cli.hgetall(ns('posts',postId),(err,post)=>{
     if(err)return next(err);
@@ -24,8 +23,6 @@ router.get('/:postId',function (req, res) {
         checked:!!~post.tags.indexOf(tag)
       }
     });
-
-    console.log('post:',post);
 
     res.render('edit',{
       title:'编辑',

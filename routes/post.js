@@ -38,14 +38,14 @@ router.post('/',checkLogin, function (req, res,next) {
     async.parallel({
         postIds:(cb)=>{
             console.log('postIds:',[+date,postId]);
-            cli.zadd([config.name,'postIds'].join(':'),[+date,postId],(err,ret)=>{
+            cli.zadd(ns('postIds'),[+date,postId],(err,ret)=>{
                 if(err)return cb(err);
                 console.log('postIds>ret:',ret);
                 cb(null,ret);
             });
         },
         userPosts:(cb)=>{
-            cli.zadd([config.name,'userPosts',user.name].join(':'),[+date,postId],(err,ret)=>{
+            cli.zadd(ns('userPosts',user.name),[+date,postId],(err,ret)=>{
                 if(err)return cb(err);
                 console.log('userPosts>ret:',ret);
                 cb(null,ret);
@@ -59,7 +59,7 @@ router.post('/',checkLogin, function (req, res,next) {
                 }
             });
             console.log('tags:',tags);
-            cli.hmset([config.name,'posts',postId].join(':'),[
+            cli.hmset(ns('posts',postId),[
                     'id',postId,
                     'title',title,
                     'content',content,
@@ -85,7 +85,7 @@ router.post('/',checkLogin, function (req, res,next) {
             });
 
             async.each(tags,(tag,ecb)=>{
-                cli.zadd([config.name,'tags',tag].join(':'),[+date,postId],(err,ret)=>{
+                cli.zadd(ns('tags',tag),[+date,postId],(err,ret)=>{
                     if(err)return ecb(err);
                     ecb(null,ret);
                 });
@@ -97,22 +97,22 @@ router.post('/',checkLogin, function (req, res,next) {
         archivesIndex:(cb)=>{
             var score=+new Date(date.getFullYear(),date.getMonth());//以当前时间的年月1日0点时间戳为score
             console.log('archivesIndex:score|val',score,ym);
-            cli.zadd([config.name,'archivesIndex'].join(':'),[score,ym],(err,ret)=>{
+            cli.zadd(ns('archivesIndex'),[score,ym],(err,ret)=>{
                 if(err)return cb(err);
                 console.log('archivesIndex>ret:',ret);
                 cb(null,ret);
             });
         },
         archives:(cb)=>{
-            cli.zadd([config.name,'archives',ym].join(':'),[+date,postId],(err,ret)=>{
+            cli.zadd(ns('archives',ym),[+date,postId],(err,ret)=>{
                 if(err)return cb(err);
                 console.log('archives>ret:',ret);
                 cb(null,ret);
             });
         }
-    },(err,ret)=>{
+    },(err)=>{
         if(err)return console.log(err),ep.emit('post_err','保存POST错误');
-        cli.incr([config.name,'posts','count'].join(':'),(err,ret)=>{
+        cli.incr(ns('posts','count'),(err,ret)=>{
             if(err)return console.log(err),ep.emit('post_err','保存POST错误');
             console.log('posts:count>ret:',ret);
             console.log('Post saved!');

@@ -1,7 +1,7 @@
 var router =require('express').Router();
-var cli=require('redis').createClient({db:1});
+var cli=require('redis').createClient({db:3});
 var async=require('async');
-var Ep=require('eventproxy');
+var ns=require('../lib/ns');
 
 module.exports = router;
 
@@ -13,16 +13,14 @@ router.get('/', function (req, res, next) {
         (cb)=> {
             async.parallel({
                 total:(pcb)=>{
-                    cli.zcard('postIds',(err,total)=>{
-                        //console.log('total:',err,total);
+                    cli.zcard(ns('postIds'),(err,total)=>{
                         if(err)return cb(err);
                         pcb(null,total);
                     })
                 },
                 ids:(pcb)=>{
                     //console.log('skip:',limit*(p-1), limit*p-1);
-                    cli.zrevrange('postIds', limit*(p-1), limit*p-1, (err, ids)=> {
-                        //console.log('postIds:',err,ids);
+                    cli.zrevrange(ns('postIds'), limit*(p-1), limit*p-1, (err, ids)=> {
                         if (err)return cb(err);
                         pcb(null, ids);
                     });
@@ -35,7 +33,7 @@ router.get('/', function (req, res, next) {
         },
         (ret,cb)=>{
             async.map(ret.ids,(id,ecb)=>{
-                cli.hgetall('posts:'+id,(err,post)=>{
+                cli.hgetall(ns('posts',id),(err,post)=>{
                     //console.log('posts:'+id,err,id);
                     //console.log(post.id);
                     if(err)return next(err);
@@ -44,25 +42,22 @@ router.get('/', function (req, res, next) {
             },(err,posts)=>{
                 if(err)return next(err);
                 posts.forEach((post)=>{
-                    //console.log('post:',post);
                     post.tags=post.tags.length?post.tags.split(',').map((tag)=>{
                         return {
                             name:tag,
                             curr:false
                         }
                     }):[];
-                    //console.log('post title:',post.title);
                 });
                 ret.posts=posts;
                 cb(null,ret);
             });
         }
     ],(err,ret)=>{
-        //console.log('result:',err,ret);
         if(err)return next(err);
 
         var pageCnt=Math.ceil(ret.total/limit);
-        var page={
+        var page=pageCnt>1?{
             curr:p,
             total:pageCnt,
             pages:(()=>{
@@ -80,8 +75,7 @@ router.get('/', function (req, res, next) {
             last:'p='+pageCnt,
             isFirstPage:p==1,
             isLastPage:(p-1)*limit+ret.posts.length>=ret.total
-        };
-        //console.log('page:',page);
+        }:false;
 
         res.render('index',{
             title:'Home',

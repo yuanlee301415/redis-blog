@@ -26,8 +26,6 @@ router.post('/',checkNotLogin, function (req, res,next) {
 
   cli.hgetall(ns('users',name),(err,user)=>{
     if(err)return ep.emit('login_error','查询错误');
-    console.log('Find login user:',user);
-    console.log('Post user:',req.body);
 
     if(!user || name !== user.name || password !== user.password)return ep.emit('login_error','用户名或密码错误');
     req.session.user={
