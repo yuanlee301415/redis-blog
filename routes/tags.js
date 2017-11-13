@@ -1,12 +1,11 @@
 var express = require('express');
 var async = require('async');
 var router = express.Router();
-var cli=require('redis').createClient({db:1});
-var checkLogin =require('../middleware/checkLogin');
+var cli=require('redis').createClient({db:3});
 var postTags =require('../config.js').postTags;
+var ns=require('../lib/ns');
 
 module.exports = router;
-
 
 //标签列表页
 router.get('/', (req, res)=>{
@@ -26,13 +25,13 @@ router.get('/:tag', (req, res,next)=>{
         (cb)=>{
             async.parallel({
                 total:(pcb)=>{
-                    cli.zcard('tags:'+currTag,(err,total)=>{
+                    cli.zcard(ns('tags',currTag),(err,total)=>{
                         if(err)return pcb(err);
                         pcb(null,total);
                     })
                 },
                 postIds:(pcb)=>{
-                    cli.zrevrange('tags:'+currTag,limit*(p-1),limit*p-1,(err,postIds)=>{
+                    cli.zrevrange(ns('tags',currTag),limit*(p-1),limit*p-1,(err,postIds)=>{
                         if(err)return pcb(err);
                         //console.log('postIds:',req.params.tag,postIds);
                         pcb(null,postIds);
@@ -45,7 +44,7 @@ router.get('/:tag', (req, res,next)=>{
         },
         (data,cb)=>{
             async.map(data.postIds,(id,mcb)=>{
-                cli.hgetall('posts:'+id,(err,post)=>{
+                cli.hgetall(ns('posts',id),(err,post)=>{
                     if(err)return mcb(err);
                     mcb(null,post);
                 });
@@ -76,7 +75,7 @@ router.get('/:tag', (req, res,next)=>{
             title:'Tag:'+req.params.tag,
             user:req.session.user,
             posts:data.posts,
-            page:{
+            page:pageCnt>1?{
                 curr:p,
                 total:pageCnt,
                 pages:(()=>{
@@ -94,7 +93,7 @@ router.get('/:tag', (req, res,next)=>{
                 last:'p='+pageCnt,
                 isFirstPage:p==1,
                 isLastPage:(p-1)*limit+data.posts.length==data.total
-            },
+            }:false,
             success:req.flash('success').toString(),
             error:req.flash('error').toString()
         });

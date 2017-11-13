@@ -1,9 +1,9 @@
 var express = require('express');
 var router = express.Router();
-var checkLogin =require('../middleware/checkLogin');
-var cli=require('redis').createClient({db:1});
+var cli=require('redis').createClient({db:3});
 var async=require('async');
 var _=require('underscore');
+var ns=require('../lib/ns');
 
 module.exports = router;
 
@@ -11,7 +11,7 @@ module.exports = router;
 router.get('/', (req, res,next)=>{
     async.waterfall([
         (cb)=>{
-            cli.zrevrange('archivesIndex',0,-1,(err,archives)=>{
+            cli.zrevrange(ns('archivesIndex'),0,-1,(err,archives)=>{
                 //console.log('archives:',err,archives);
                 if(err)return cb(err);
                 cb(null,archives);
@@ -20,7 +20,7 @@ router.get('/', (req, res,next)=>{
         (archives,cb)=>{
             var archiveGroups=[];
             async.each(archives,(archive,ecb)=>{
-                cli.zrevrange('archives:'+archive,0,-1,(err,ids)=>{
+                cli.zrevrange(ns('archives',archive),0,-1,(err,ids)=>{
                     if(err)return cb(err);
                     archiveGroups.push({archive:archive,ids:ids});
                     ecb();
@@ -35,7 +35,7 @@ router.get('/', (req, res,next)=>{
             async.each(groups,(group,ecb)=>{
                 group.more=group.ids.length>10;
                 async.map(group.ids.slice(0,10),(id,mcb)=>{
-                    cli.hgetall('posts:'+id,(err,post)=>{
+                    cli.hgetall(ns('posts',id),(err,post)=>{
                         if(err)return mcb(err);
                         mcb(null,post);
                     });
@@ -55,7 +55,7 @@ router.get('/', (req, res,next)=>{
             });
         }
     ],(err,groups)=>{
-        console.log('归档：',err,groups);
+        //console.log('归档：',err,groups);
         if(err)return next(err);
         res.render('archives',{
             title:'分类归档',
@@ -68,52 +68,31 @@ router.get('/', (req, res,next)=>{
 });
 
 router.get('/:archive',(req,res,next)=>{
-    var p=parseInt(req.query.p,10)||1,limit=3,archive=req.params.archive;
-    p=p>0?p:1;
+    var archive=req.params.archive;
 
     async.waterfall([
         (cb)=>{
-            async.parallel({
-               total:(pcb)=>{
-                    cli.zcard('archives:'+archive,(err,total)=>{
-                        //console.log('total:',err,total);
-                        if(err)return pcb(err);
-                        pcb(null,total);
-                    });
-               },
-               ids:(pcb)=>{
-                   cli.zrevrange('archives:'+archive,0,-1,(err,ids)=>{
-                       //console.log('ids:',err,ids);
-                       if(err)return pcb(err);
-                       pcb(null,ids);
-                   });
-               }
-            },(err,ret)=>{
+            cli.zrevrange(ns('archives',archive),0,-1,(err,ids)=>{
                 if(err)return cb(err);
-                cb(null,ret);
+                cb(null,ids);
             });
         },
-        (data,cb)=>{
-            //console.log('data:',data);
-
-            async.map(data.ids,(id,mcb)=>{
-               cli.hmget('posts:'+id,['title','userName','time'],(err,post)=>{
-                   post=_.object(['title','userName','time'],post);
+        (ids,cb)=>{
+            async.map(ids,(id,mcb)=>{
+               cli.hmget(ns('posts',id),['id','title','userName','time'],(err,post)=>{
+                   post=_.object(['id','title','userName','time'],post);
                    mcb(null,post);
                });
             },(err,posts)=>{
-                //console.log('posts:',posts);
-
-                data.posts=posts.filter((post)=>{return post;});
-                cb(null,data);
+                posts=posts.filter((post)=>{return post;});
+                cb(null,posts);
             });
         }
-    ],(err,data)=>{
+    ],(err,posts)=>{
         if(err)return next(err);
         var groups=[{
             archive:archive,
-            total:data.total,
-            posts:data.posts
+            posts:posts
         }];
         //console.log('groups:',err,groups);
 

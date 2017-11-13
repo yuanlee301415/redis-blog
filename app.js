@@ -3,15 +3,13 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
-var ConnectMongo = require('connect-mongo')(session);
 var flash = require('connect-flash');
-var routes = require('./routes/index');
 var config = require('./config');
 var path = require('path');
 var fs = require('fs');
 var app = express();
 var morgan = require('morgan');
-var redis=require('redis');
+var RedisStore = require('connect-redis')(session);
 var exHbs=require('express-handlebars').create({
     defaultLayout:'main',
     extname:'.hbs',
@@ -27,20 +25,16 @@ app.set('port',3015);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
 app.engine('hbs',exHbs.engine);
-app.use(logger('dev'));
+//app.use(logger('dev'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(session({
-    secret: config.secret,
-    key: config.db,
-    cookie: {maxAge: 1000 * 60 * 60 * 24 * 30},//30 days
-    store: new ConnectMongo({
-        url: 'mongodb://localhost/RedisBlog'
-    })
+    store: new RedisStore({}),
+    secret: config.secret
 }));
 app.use(flash());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(morgan({stream:fs.createWriteStream('access.log')}));;
+app.use(morgan({stream:fs.createWriteStream('access.log')}));
 
 var errorLog=fs.createWriteStream('error.log');
 app.use(function (err,req,res,next) {
@@ -95,5 +89,5 @@ app.use(function(err, req, res, next) {
 });
 
 app.listen(app.get('port'), function () {
-  console.log('---------------------------','Redis Blog port:',app.get('port'),'----',new Date().toLocaleTimeString(),'---------------------------');
+  console.log('\n\nRedis Blog port:',app.get('port'),'----',new Date().toLocaleTimeString());
 });

@@ -16,6 +16,7 @@ li {list-style: none;}
 }
 
 header{padding:1.5em 0 .5em;border-bottom:1px solid #cccccc; margin-bottom: 20px;text-align: center;}
+header h1 {font-size: 1.5em;}
 nav{float:left;font-family:"Microsoft YaHei";font-size:1.1em;text-transform:uppercase;width:9em;text-align:right;}
 nav a{display:block;text-decoration:none;padding:.7em 1em;color:#000000;}
 nav a:hover{background-color:#ff0000;color:#f9f9f9;-webkit-transition:color .2s linear;}

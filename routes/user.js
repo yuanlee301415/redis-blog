@@ -1,7 +1,8 @@
 var router = require('express').Router();
-var cli=require('redis').createClient({db:1});
+var cli=require('redis').createClient({db:3});
 var Ep=require('eventproxy');
 var async=require('async');
+var ns=require('../lib/ns');
 
 module.exports = router;
 
@@ -19,7 +20,7 @@ router.get('/:name', function (req, res, next) {
 
     async.waterfall([
         (cb)=>{
-            cli.hgetall('users:'+authorName,(err,author)=>{
+            cli.hgetall(ns('users',authorName),(err,author)=>{
                 //console.log('author:',author);
                 if(err)return cb(err);
                 if(!author)return ep.emit('author_error');
@@ -29,7 +30,7 @@ router.get('/:name', function (req, res, next) {
         (author,cb)=>{
             async.parallel({
                total:(pcb)=>{
-                   cli.zcard('userPosts:'+author.name,(err,total)=>{
+                   cli.zcard(ns('userPosts',author.name),(err,total)=>{
                        //console.log('total:',total);
                        if(err)return pcb(err);
                        pcb(null,total);
@@ -37,7 +38,7 @@ router.get('/:name', function (req, res, next) {
                },
                 postIds:(pcb)=>{
                     //console.log('skip:',limit*(p-1),limit*p-1);
-                    cli.zrevrange('userPosts:'+author.name,limit*(p-1),limit*p-1,(err,postIds)=>{
+                    cli.zrevrange(ns('userPosts',author.name),limit*(p-1),limit*p-1,(err,postIds)=>{
                         //console.log('postIds:',err,postIds);
                         if(err)return cb(err);
                         pcb(null,postIds);
@@ -53,7 +54,7 @@ router.get('/:name', function (req, res, next) {
         (data,cb)=>{
             async.map(data.postIds,(id,cb)=>{
                 //console.log('postId:',id);
-                cli.hgetall('posts:'+id,(err,post)=>{
+                cli.hgetall(ns('posts',id),(err,post)=>{
                     if(err)return cb(err);
                     //console.log('post:',post);
                     cb(null,post);
@@ -68,7 +69,7 @@ router.get('/:name', function (req, res, next) {
         if(err)return next(err);
 
         var pageCnt=Math.ceil(ret.total/limit);
-        var page={
+        var page=pageCnt>1?{
             curr:p,
             total:pageCnt,
             pages:(()=>{
@@ -86,7 +87,7 @@ router.get('/:name', function (req, res, next) {
             last:'p='+pageCnt,
             isFirstPage:p==1,
             isLastPage:(p-1)*limit+ret.posts.length>=ret.total
-        };
+        }:false;
         res.render('user',{
             title:'用户详细',
             posts:ret.posts,
