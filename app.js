@@ -89,5 +89,5 @@ app.use(function(err, req, res, next) {
 });
 
 app.listen(app.get('port'), function () {
-  console.log('---------------------------','Redis Blog port:',app.get('port'),'----',new Date().toLocaleTimeString(),'---------------------------');
+  console.log('\n\nRedis Blog port:',app.get('port'),'----',new Date().toLocaleTimeString());
 });

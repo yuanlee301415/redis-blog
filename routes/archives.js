@@ -1,9 +1,9 @@
 var express = require('express');
 var router = express.Router();
-var config =require('../config');
 var cli=require('redis').createClient({db:3});
 var async=require('async');
 var _=require('underscore');
+var ns=require('../lib/ns');
 
 module.exports = router;
 
@@ -11,7 +11,7 @@ module.exports = router;
 router.get('/', (req, res,next)=>{
     async.waterfall([
         (cb)=>{
-            cli.zrevrange('archivesIndex',0,-1,(err,archives)=>{
+            cli.zrevrange(ns('archivesIndex'),0,-1,(err,archives)=>{
                 //console.log('archives:',err,archives);
                 if(err)return cb(err);
                 cb(null,archives);
@@ -20,7 +20,7 @@ router.get('/', (req, res,next)=>{
         (archives,cb)=>{
             var archiveGroups=[];
             async.each(archives,(archive,ecb)=>{
-                cli.zrevrange('archives:'+archive,0,-1,(err,ids)=>{
+                cli.zrevrange(ns('archives',archive),0,-1,(err,ids)=>{
                     if(err)return cb(err);
                     archiveGroups.push({archive:archive,ids:ids});
                     ecb();
@@ -35,7 +35,7 @@ router.get('/', (req, res,next)=>{
             async.each(groups,(group,ecb)=>{
                 group.more=group.ids.length>10;
                 async.map(group.ids.slice(0,10),(id,mcb)=>{
-                    cli.hgetall('posts:'+id,(err,post)=>{
+                    cli.hgetall(ns('posts',id),(err,post)=>{
                         if(err)return mcb(err);
                         mcb(null,post);
                     });
@@ -72,14 +72,14 @@ router.get('/:archive',(req,res,next)=>{
 
     async.waterfall([
         (cb)=>{
-            cli.zrevrange('archives:'+archive,0,-1,(err,ids)=>{
+            cli.zrevrange(ns('archives',archive),0,-1,(err,ids)=>{
                 if(err)return cb(err);
                 cb(null,ids);
             });
         },
         (ids,cb)=>{
             async.map(ids,(id,mcb)=>{
-               cli.hmget('posts:'+id,['id','title','userName','time'],(err,post)=>{
+               cli.hmget(ns('posts',id),['id','title','userName','time'],(err,post)=>{
                    post=_.object(['id','title','userName','time'],post);
                    mcb(null,post);
                });

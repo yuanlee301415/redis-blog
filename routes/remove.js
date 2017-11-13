@@ -4,6 +4,7 @@ var cli=require('redis').createClient({db:3});
 var async=require('async');
 var moment=require('moment');
 var Ep=require('eventproxy');
+var ns=require('../lib/ns');
 
 module.exports = router;
 
@@ -23,7 +24,7 @@ router.get('/:postId', (req,res,next)=>{
     async.waterfall([
         (cb)=>{
             //获取文章
-            cli.hgetall('posts:'+postId,(err,post)=>{
+            cli.hgetall(ns('posts',postId),(err,post)=>{
                 console.log('post:',err,post);
                 if(err)return next(err);
                 if(!post)return ep.emit('send',{error:'文章不存在或已经删除'});
@@ -32,7 +33,7 @@ router.get('/:postId', (req,res,next)=>{
         },
         (post,cb)=>{
             //删除POST列表中的post id
-            cli.zrem('postIds',postId,(err,ret)=>{
+            cli.zrem(ns('postIds'),postId,(err,ret)=>{
                 console.log('\n删除POST列表中的postId:',postId,err,ret);
                 if(err)return cb(err);
                 cb(null,post);
@@ -42,14 +43,14 @@ router.get('/:postId', (req,res,next)=>{
             async.parallel({
                 delPost:(pcb)=>{
                     //删除POST
-                    cli.del('posts:'+postId,(err,ret)=>{
+                    cli.del(ns('posts',postId),(err,ret)=>{
                         console.log('\n删除POST:',err,ret);
                         if(err)return pcb(err);
                         pcb(null,ret);
                     });
                 },
                 cutPostCount:(pcb)=>{
-                    cli.decr('posts:count',(err,ret)=>{
+                    cli.decr(ns('posts','count'),(err,ret)=>{
                         console.log('\npost count -1:',err,ret);
                         if(err)return pcb(err);
                         pcb(null,ret);
@@ -58,7 +59,7 @@ router.get('/:postId', (req,res,next)=>{
                 delTag:(pcb)=>{
                     var tags=post.tags.length?post.tags.split(','):[];
                     async.map(tags,(tag,mcb)=>{
-                        cli.zrem('tags:'+tag,postId,(err,ret)=>{
+                        cli.zrem(ns('tags',tag),postId,(err,ret)=>{
                             if(err)return mcb(err);
                             mcb(null,[tag,ret]);
                         });
@@ -70,14 +71,14 @@ router.get('/:postId', (req,res,next)=>{
                 },
                 delArchives:(pcb)=>{
                     var archive=moment(post.time).format('YYYY-MM');
-                    cli.zrem('archives:'+archive,postId,(err,ret)=>{
+                    cli.zrem(ns('archives',archive),postId,(err,ret)=>{
                         console.log('\n删除归档:',err,archive,ret);
                         if(err)return pcb(err);
                         pcb(null,[archive,postId,ret]);
                     });
                 },
                 delUserPosts:(pcb)=>{
-                    cli.zrem('userPosts:'+post.userName,postId,(err,ret)=>{
+                    cli.zrem(ns('userPosts',post.userName),postId,(err,ret)=>{
                         console.log('\n删除用户的文章ID:',err,ret);
                         if(err)return pcb(err);
                         pcb(null,ret);
@@ -87,7 +88,7 @@ router.get('/:postId', (req,res,next)=>{
                     async.waterfall([
                         (cpcb)=>{
                             //获取评论ID列表
-                            cli.zrange('postCommentIds:'+postId,[0,-1],(err,commentIds)=>{
+                            cli.zrange(ns('postCommentIds',postId),[0,-1],(err,commentIds)=>{
                                 console.log('获取评论ID列表:',err,commentIds);
                                 if(err)return cpcb(err);
                                 cpcb(null,commentIds);
@@ -97,7 +98,7 @@ router.get('/:postId', (req,res,next)=>{
                             //删除评论
                             if(!commentIds || !commentIds.length)return cpcb(null,false);
                             async.each(commentIds,(id,ecb)=>{
-                                cli.del('comments:'+id,(err,ret)=>{
+                                cli.del(ns('comments',id),(err,ret)=>{
                                     console.log('删除评论:comments'+id,err,ret);
                                     if(err)return ecb(err);
                                     ecb();
@@ -110,7 +111,7 @@ router.get('/:postId', (req,res,next)=>{
                         (hasList,cpcb)=>{
                             //删除评论ID列表
                             if(!hasList)return cpcb();
-                            cli.del('postCommentIds:'+postId,(err,ret)=>{
+                            cli.del(ns('postCommentIds',postId),(err,ret)=>{
                                 console.log('删除评论ID列表:postCommentIds'+postId,err,ret);
                                 if(err)return cpcb(err);
                                 cpcb(null,'删除评论成功');

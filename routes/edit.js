@@ -1,15 +1,16 @@
 var express = require('express');
 var router = express.Router();
-var checkName =require('../middleware/checkName');
+var ns=require('../lib/ns');
 var cli=require('redis').createClient({db:3});
 var postTags=require('../config').postTags;
 
 module.exports = router;
 
 //编辑博客
-router.get('/:postId', function (req, res) {
+router.get('/:postId',function (req, res) {
   var postId=req.params.postId;
-  cli.hgetall('posts:'+postId,(err,post)=>{
+
+  cli.hgetall(ns('posts',postId),(err,post)=>{
     if(err)return next(err);
     if(!post)return req.flash('error','文章不存在或已经删除！'),res.redirect('/notify');
 
@@ -22,8 +23,6 @@ router.get('/:postId', function (req, res) {
         checked:!!~post.tags.indexOf(tag)
       }
     });
-
-    console.log('post:',post);
 
     res.render('edit',{
       title:'编辑',
@@ -38,10 +37,10 @@ router.get('/:postId', function (req, res) {
 });
 
 //更新博客
-router.post('/:postId', function (req, res) {
+router.post('/:postId', function (req, res,next) {
   var postId=req.params.postId,body=req.body;
 
-  cli.hgetall('posts:'+postId,(err,post)=>{
+  cli.hgetall(ns('posts',postId),(err,post)=>{
     if(err)return next(err);
     if(!post)return req.flash('error','文章不存在或已经删除！'),res.redirect('/notify');
 
@@ -54,22 +53,12 @@ router.post('/:postId', function (req, res) {
       }
     });
 
-    cli.hmset('posts:'+postId,['title',body.title,'content',body.content,'tags',tags.join(',')],(err)=>{
+    cli.hmset(ns('posts',postId),['title',body.title,'content',body.content,'tags',tags.join(',')],(err)=>{
       if(err)return next(err);
+      req.flash('success','编辑成功');
       res.redirect('/article/'+postId);
     });
 
   });
 
-
-  return;
-  Post.update(req.body._id,req.body.post,function (err, ret) {
-    if(err){
-      console.log('/edit>err:',err);
-      req.flash('error','编辑失败');
-      return res.redirect('back');
-    }
-    req.flash('success','编辑成功');
-    res.redirect('/article/'+req.session.user.name+'/'+req.body._id);
-  });
 });

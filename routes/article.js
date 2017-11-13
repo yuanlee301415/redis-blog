@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var checkLogin =require('../middleware/checkLogin');
-var config=require('../config');
+var ns=require('../lib/ns');
 var cli=require('redis').createClient({db:3});
 var Ep=require('eventproxy');
 var async=require('async');
@@ -12,8 +12,7 @@ module.exports = router;
 
 //博客详细
 router.get('/:postId', (req,res,next)=>{
-    var key='posts:'+req.params.postId;
-
+    var key=ns('posts',req.params.postId);
     async.waterfall([
         (cb)=>{
             cli.hgetall(key,(err,post)=>{
@@ -25,7 +24,7 @@ router.get('/:postId', (req,res,next)=>{
             });
         },
         (post,cb)=>{
-           cli.zrange('postCommentIds:'+post.id,0,-1,(err,commentIds)=>{
+           cli.zrange(ns('postCommentIds',post.id),0,-1,(err,commentIds)=>{
                if(err)return cb(err);
                //console.log('commentIds:',commentIds);
                cb(null,post,commentIds);
@@ -35,14 +34,14 @@ router.get('/:postId', (req,res,next)=>{
             async.map(commentIds,(id,mcb)=>{
                 async.waterfall([
                     (ccb)=>{
-                        cli.hgetall('comments:'+id,(err,comment)=>{
+                        cli.hgetall(ns('comments',id),(err,comment)=>{
                             //console.log('comment:',err,comment);
                             if(err || !comment)return mcb();
                             ccb(null,comment);
                         });
                     },
                     (comment,ccb)=>{
-                        cli.hgetall('users:'+comment.userName,(err,user)=>{
+                        cli.hgetall(ns('users',comment.userName),(err,user)=>{
                             //console.log('user:',err,user);
                             if(err || !user)return mcb();
                             comment.user=user;
@@ -92,7 +91,7 @@ router.post('/:postId',checkLogin, function (req,res,next) {
         return ep.emit('comment_err','请填写评论内容');
     }
 
-    cli.hget('posts:'+postId,'id',(err,ret)=>{
+    cli.hget(ns('posts',postId),'id',(err,ret)=>{
         if(err)return next(err);
         if(!ret)return ep.emit('comment_err','文章不存在或已经删除');
 
@@ -100,19 +99,19 @@ router.post('/:postId',checkLogin, function (req,res,next) {
         var id=uuid(),date=new Date(),time=moment(date).format('YYYY-MM-DD HH:mm:ss');
         async.parallel([
             (cb)=>{//评论数据
-                cli.hmset('comments:'+id,['comment',content,'userName',user.name,'time',time],(err)=>{
+                cli.hmset(ns('comments',id),['comment',content,'userName',user.name,'time',time],(err)=>{
                     if(err)return cb(err);
                     cb();
                 });
             },
             (cb)=>{//以时间降序保存评论ID
-                cli.zadd('postCommentIds:'+postId,[+date,id],(err)=>{
+                cli.zadd(ns('postCommentIds',postId),[+date,id],(err)=>{
                     if(err)return cb(err);
                     cb();
                 });
             },
             (cb)=>{//更新话题评论数
-                cli.hincrby('posts:'+postId,['commentCnt',1],(err)=>{
+                cli.hincrby(ns('posts',postId),['commentCnt',1],(err)=>{
                     if(err)return cb(err);
                     cb();
                 });
