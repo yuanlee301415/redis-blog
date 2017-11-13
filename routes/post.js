@@ -33,10 +33,8 @@ router.post('/',checkLogin, function (req, res,next) {
 
     //save
     var postId=uuid(),date=new Date(),ym=moment(date).format('YYYY-MM');
-    console.log('postId | date:',postId,date);
     async.parallel({
         postIds:(cb)=>{
-            console.log('postIds:',[+date,postId]);
             cli.zadd(ns('postIds'),[+date,postId],(err,ret)=>{
                 if(err)return cb(err);
                 console.log('postIds>ret:',ret);
@@ -46,7 +44,6 @@ router.post('/',checkLogin, function (req, res,next) {
         userPosts:(cb)=>{
             cli.zadd(ns('userPosts',user.name),[+date,postId],(err,ret)=>{
                 if(err)return cb(err);
-                console.log('userPosts>ret:',ret);
                 cb(null,ret);
             });
         },
@@ -57,7 +54,6 @@ router.post('/',checkLogin, function (req, res,next) {
                     tags.push(tag);
                 }
             });
-            console.log('tags:',tags);
             cli.hmset(ns('posts',postId),[
                     'id',postId,
                     'title',title,
@@ -71,7 +67,6 @@ router.post('/',checkLogin, function (req, res,next) {
                     'userName',user.name
             ],(err,ret)=>{
                 if(err)return cb(err);
-                console.log('userPosts>ret:',ret);
                 cb(null,ret);
             });
         },
@@ -95,17 +90,14 @@ router.post('/',checkLogin, function (req, res,next) {
         },
         archivesIndex:(cb)=>{
             var score=+new Date(date.getFullYear(),date.getMonth());//以当前时间的年月1日0点时间戳为score
-            console.log('archivesIndex:score|val',score,ym);
             cli.zadd(ns('archivesIndex'),[score,ym],(err,ret)=>{
                 if(err)return cb(err);
-                console.log('archivesIndex>ret:',ret);
                 cb(null,ret);
             });
         },
         archives:(cb)=>{
             cli.zadd(ns('archives',ym),[+date,postId],(err,ret)=>{
                 if(err)return cb(err);
-                console.log('archives>ret:',ret);
                 cb(null,ret);
             });
         }
@@ -113,10 +105,7 @@ router.post('/',checkLogin, function (req, res,next) {
         if(err)return console.log(err),ep.emit('post_err','保存POST错误');
         cli.incr(ns('posts','count'),(err,ret)=>{
             if(err)return console.log(err),ep.emit('post_err','保存POST错误');
-            console.log('posts:count>ret:',ret);
-            console.log('Post saved!');
             req.flash('success','文章发表成功！');
-            //res.redirect('/article/'+postId);
             res.redirect('/post');
         });
     });

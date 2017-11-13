@@ -12,7 +12,6 @@ router.get('/', (req, res,next)=>{
     async.waterfall([
         (cb)=>{
             cli.zrevrange(ns('archivesIndex'),0,-1,(err,archives)=>{
-                //console.log('archives:',err,archives);
                 if(err)return cb(err);
                 cb(null,archives);
             });
@@ -26,7 +25,6 @@ router.get('/', (req, res,next)=>{
                     ecb();
                 });
             },(err)=>{
-                //console.log('archives:',err,archiveGroups);
                 if(err)return cb(err);
                 cb(null,archiveGroups);
             });
@@ -55,7 +53,6 @@ router.get('/', (req, res,next)=>{
             });
         }
     ],(err,groups)=>{
-        //console.log('归档：',err,groups);
         if(err)return next(err);
         res.render('archives',{
             title:'分类归档',
@@ -94,7 +91,6 @@ router.get('/:archive',(req,res,next)=>{
             archive:archive,
             posts:posts
         }];
-        //console.log('groups:',err,groups);
 
         res.render('archives',{
             title:'分类归档',

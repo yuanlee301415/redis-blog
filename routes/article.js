@@ -16,7 +16,6 @@ router.get('/:postId', (req,res,next)=>{
     async.waterfall([
         (cb)=>{
             cli.hgetall(key,(err,post)=>{
-                //console.log('post:',err,post);
                 if(err)return next(err);
                 if(!post)return req.flash('error','文章不存在或已经删除！'),res.redirect('/notify');
                 post.tags=post.tags.length?post.tags.split(','):[];
@@ -26,7 +25,6 @@ router.get('/:postId', (req,res,next)=>{
         (post,cb)=>{
            cli.zrange(ns('postCommentIds',post.id),0,-1,(err,commentIds)=>{
                if(err)return cb(err);
-               //console.log('commentIds:',commentIds);
                cb(null,post,commentIds);
            });
         },
@@ -35,14 +33,12 @@ router.get('/:postId', (req,res,next)=>{
                 async.waterfall([
                     (ccb)=>{
                         cli.hgetall(ns('comments',id),(err,comment)=>{
-                            //console.log('comment:',err,comment);
                             if(err || !comment)return mcb();
                             ccb(null,comment);
                         });
                     },
                     (comment,ccb)=>{
                         cli.hgetall(ns('users',comment.userName),(err,user)=>{
-                            //console.log('user:',err,user);
                             if(err || !user)return mcb();
                             comment.user=user;
                             ccb(null,comment);
@@ -52,14 +48,11 @@ router.get('/:postId', (req,res,next)=>{
                     mcb(null,comment);
                 });
             },(err,comments)=>{
-                //console.log('comments:',err,comments);
                 comments=comments.filter((comment)=>{return comment;});
                 cb(null,post,comments);
             });
         }
     ],(err,post,comments)=>{
-        //console.log('post ret:',err,post);
-        //console.log('comments ret:',err,comments);
         if(err)return next(err);
         res.render('article',{
             title:'博客详细页',

@@ -9,7 +9,6 @@ router.get('/', function (req, res, next) {
     async.waterfall([
         (cb)=> {
             cli.zrevrange('postIds', 0, -1, (err, ids)=> {
-                console.log('postIds:',err,ids);
                 if (err)return cb(err);
                 cb(null, ids);
             });
@@ -17,7 +16,6 @@ router.get('/', function (req, res, next) {
         (ids,cb)=>{
             async.map(ids,(id,mcb)=>{
                 cli.hgetall('posts:'+id,(err,post)=>{
-                    console.log('post:'+id,err,post);
                     if(err)return next(err);
                     mcb(null,post);
                 });
@@ -42,15 +40,13 @@ router.get('/', function (req, res, next) {
                    if(err)return mcb(err);
                    mcb(null,[post.id,post.title,ret]);
                })
-            },(err,ret)=>{
+            },err=>{
                 if(err)return cb(err);
                 cb(null,posts);
             });
         }
     ],(err,posts)=>{
-        //console.log('result:',err,ret);
         if(err)return next(err);
         res.json(posts);
     });
 });
-

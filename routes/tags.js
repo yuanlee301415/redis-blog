@@ -33,7 +33,6 @@ router.get('/:tag', (req, res,next)=>{
                 postIds:(pcb)=>{
                     cli.zrevrange(ns('tags',currTag),limit*(p-1),limit*p-1,(err,postIds)=>{
                         if(err)return pcb(err);
-                        //console.log('postIds:',req.params.tag,postIds);
                         pcb(null,postIds);
                     });
                 }
@@ -67,7 +66,6 @@ router.get('/:tag', (req, res,next)=>{
             });
         }
     ],(err,data)=>{
-        //console.log('posts:',err,posts);
         if(err)return next(err);
         var pageCnt=Math.ceil(data.total/limit);
 

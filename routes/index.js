@@ -19,14 +19,12 @@ router.get('/', function (req, res, next) {
                     })
                 },
                 ids:(pcb)=>{
-                    //console.log('skip:',limit*(p-1), limit*p-1);
                     cli.zrevrange(ns('postIds'), limit*(p-1), limit*p-1, (err, ids)=> {
                         if (err)return cb(err);
                         pcb(null, ids);
                     });
                 }
             },(err,ret)=>{
-                //console.log('total ret:',err,ret);
                 if(err)return cb(err);
                 cb(null,ret);
             })
@@ -34,8 +32,6 @@ router.get('/', function (req, res, next) {
         (ret,cb)=>{
             async.map(ret.ids,(id,ecb)=>{
                 cli.hgetall(ns('posts',id),(err,post)=>{
-                    //console.log('posts:'+id,err,id);
-                    //console.log(post.id);
                     if(err)return next(err);
                     ecb(null,post);
                 });
@@ -87,4 +83,3 @@ router.get('/', function (req, res, next) {
         });
     });
 });
-
